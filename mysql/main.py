@@ -13,7 +13,7 @@ PAPER_FILE = "papers.txt"
 PAPER_TERM_FILE = "paper_term.txt"
 TERM_FILE = "terms.txt"
 VENUE_FILE = "venues.txt"
-BATCH_SIZE = 10000
+BATCH_SIZE = 100000
 
 def init():
     engine.raw_connection().connection.text_factory = str
@@ -26,6 +26,7 @@ def init():
 
 def check_commit(session):
     if check_commit.count == BATCH_SIZE:
+        print "Committing..."
         session.commit()
         check_commit.count = 0
     else:
@@ -38,7 +39,6 @@ def insert(session):
     check_commit.count = 0
     with open(DATA_FOLDER + AUTHOR_FILE) as f:
         for line in f:
-            print line.strip('\n').split('\t')
             name = line.strip('\n').split('\t')[1]
             session.add(Author(name))
 
@@ -46,7 +46,6 @@ def insert(session):
 
     with open(DATA_FOLDER + PAPER_FILE) as f:
         for line in f:
-            print line.strip('\n').split('\t')
             name = line.strip('\n').split('\t')[1]
             session.add(Paper(name))
 
@@ -54,7 +53,6 @@ def insert(session):
 
     with open(DATA_FOLDER + TERM_FILE) as f:
         for line in f:
-            print line.strip('\n').split('\t')
             name = line.strip('\n').split('\t')[1]
             session.add(Term(name))
 
@@ -62,7 +60,6 @@ def insert(session):
 
     with open(DATA_FOLDER + VENUE_FILE) as f:
         for line in f:
-            print line.strip('\n').split('\t')
             name = line.strip('\n').split('\t')[1]
             session.add(Venue(name))
 
