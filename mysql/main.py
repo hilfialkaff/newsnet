@@ -33,10 +33,11 @@ def check_commit(session):
         check_commit.count += 1
 
 def insert(session):
-    Base.metadata.drop_all(engine)
+    #Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     check_commit.count = 0
+    """
     with open(DATA_FOLDER + AUTHOR_FILE) as f:
         for line in f:
             name = line.strip('\n').split('\t')[1]
@@ -44,13 +45,17 @@ def insert(session):
 
             check_commit(session)
 
+    """
+
     with open(DATA_FOLDER + PAPER_FILE) as f:
         for line in f:
-            name = line.strip('\n').split('\t')[1]
-            session.add(Paper(name))
+            vals = line.strip('\n').split('\t')
+            name = vals[1]
+            year = vals[3]
+            session.add(Paper(name,year))
 
             check_commit(session)
-
+    """
     with open(DATA_FOLDER + TERM_FILE) as f:
         for line in f:
             name = line.strip('\n').split('\t')[1]
@@ -64,6 +69,7 @@ def insert(session):
             session.add(Venue(name))
 
             check_commit(session)
+    """
 
     with open(DATA_FOLDER + PAPER_TERM_FILE) as f:
         for line in f:

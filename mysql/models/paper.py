@@ -10,9 +10,11 @@ class Paper(Base):
 
     terms = relationship("Term", cascade="all, delete, delete-orphan")
     venue_id = Column(Integer, ForeignKey('venues.venue_id'))
+    year = Column(Integer)
 
     def __repr__(self):
        return "Paper(name='%s')" % (self.name)
 
-    def __init__(self, name):
+    def __init__(self, name, year):
         self.name = name
+        self.year = year
