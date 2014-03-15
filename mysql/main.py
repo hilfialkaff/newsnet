@@ -33,7 +33,7 @@ def check_commit(session):
         check_commit.count += 1
 
 def insert(session):
-    #Base.metadata.drop_all(engine)
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     check_commit.count = 0
@@ -44,24 +44,9 @@ def insert(session):
             session.add(Author(name))
 
             check_commit(session)
+    session.commit()
 
     """
-
-    with open(DATA_FOLDER + PAPER_FILE) as f:
-        for line in f:
-            vals = line.strip('\n').split('\t')
-            name = vals[1]
-            year = vals[3]
-            session.add(Paper(name,year))
-
-            check_commit(session)
-    """
-    with open(DATA_FOLDER + TERM_FILE) as f:
-        for line in f:
-            name = line.strip('\n').split('\t')[1]
-            session.add(Term(name))
-
-            check_commit(session)
 
     with open(DATA_FOLDER + VENUE_FILE) as f:
         for line in f:
@@ -69,13 +54,38 @@ def insert(session):
             session.add(Venue(name))
 
             check_commit(session)
-    """
+    session.commit()
+
+    with open(DATA_FOLDER + PAPER_FILE) as f:
+        for line in f:
+            vals = line.strip('\n').split('\t')
+            name = vals[1]
+            venue_id = int(vals[2]) + 1
+            year = vals[3]
+
+            venue = session.query(Venue).filter_by(venue_id=venue_id).first()
+            new_paper = Paper(name, year)
+            venue.papers.append(new_paper)
+
+            session.add(new_paper)
+            session.add(venue)
+
+            check_commit(session)
+    session.commit()
+
+    with open(DATA_FOLDER + TERM_FILE) as f:
+        for line in f:
+            name = line.strip('\n').split('\t')[1]
+            session.add(Term(name))
+
+            check_commit(session)
+    session.commit()
 
     with open(DATA_FOLDER + PAPER_TERM_FILE) as f:
         for line in f:
             _line = line.strip('\n').split('\t')
             paper_id = int(_line[0]) + 1
-            term_id = int(_line[0]) + 1
+            term_id = int(_line[1]) + 1
 
             paper = session.query(Paper).filter_by(paper_id=paper_id).first()
             term = session.query(Term).filter_by(term_id=term_id).first()
@@ -83,12 +93,14 @@ def insert(session):
             session.add(paper)
 
             check_commit(session)
+    session.commit()
 
+    """
     with open(DATA_FOLDER + AUTHOR_PAPER_FILE) as f:
         for line in f:
             _line = line.strip('\n').split('\t')
             author_id = int(_line[0]) + 1
-            paper_id = int(_line[0]) + 1
+            paper_id = int(_line[1]) + 1
 
             author = session.query(Author).filter_by(author_id=author_id).first()
             paper = session.query(Paper).filter_by(paper_id=paper_id).first()
@@ -96,15 +108,18 @@ def insert(session):
             session.add(author)
 
             check_commit(session)
+    session.commit()
 
     with open(DATA_FOLDER + CITATION_FILE) as f:
         for line in f:
             _line = line.strip('\n').split('\t')
             cites_id = int(_line[0]) + 1
-            cited_id = int(_line[0]) + 1
+            cited_id = int(_line[1]) + 1
             session.add(Citation(cites_id, cited_id))
 
             check_commit(session)
+    session.commit()
+    """
 
 def main():
     parser = argparse.ArgumentParser()
