@@ -6,7 +6,7 @@ class Paper(Base):
     __tablename__ = 'papers'
 
     paper_id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String(500))
 
     terms = relationship("Term", cascade="all, delete, delete-orphan")
     venue_id = Column(Integer, ForeignKey('venues.venue_id'))
