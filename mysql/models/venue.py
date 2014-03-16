@@ -6,7 +6,7 @@ class Venue(Base):
     __tablename__ = 'venues'
 
     venue_id = Column(Integer, primary_key=True)
-    name = Column(String(500))
+    name = Column(String(4096))
     papers = relationship("Paper", cascade="all, delete, delete-orphan")
 
     def __repr__(self):
