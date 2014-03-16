@@ -37,7 +37,6 @@ def insert(session):
     Base.metadata.create_all(engine)
 
     check_commit.count = 0
-    """
     with open(DATA_FOLDER + AUTHOR_FILE) as f:
         for line in f:
             name = line.strip('\n').split('\t')[1]
@@ -46,7 +45,6 @@ def insert(session):
             check_commit(session)
     session.commit()
 
-    """
 
     with open(DATA_FOLDER + VENUE_FILE) as f:
         for line in f:
@@ -95,7 +93,6 @@ def insert(session):
             check_commit(session)
     session.commit()
 
-    """
     with open(DATA_FOLDER + AUTHOR_PAPER_FILE) as f:
         for line in f:
             _line = line.strip('\n').split('\t')
@@ -119,7 +116,6 @@ def insert(session):
 
             check_commit(session)
     session.commit()
-    """
 
 def main():
     parser = argparse.ArgumentParser()
