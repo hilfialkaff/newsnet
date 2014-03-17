@@ -1,8 +1,9 @@
 from py2neo import node, rel
 from connection import *
+from utils.graphlog import *
 
 class Authors(object):
-    DATA_PATH = '../../data/authors.txt'
+    DATA_PATH = '../data/authors.txt'
 
     @staticmethod
     def populate():

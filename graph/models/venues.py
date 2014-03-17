@@ -3,7 +3,7 @@ from connection import *
 from utils.graphlog import *
 
 class Venues(object):
-    DATA_PATH = '../../data/venues.txt'
+    DATA_PATH = '../data/venues.txt'
 
 
     @staticmethod
@@ -21,7 +21,7 @@ class Venues(object):
         num_batch = 0
         with open(Venues.DATA_PATH, 'r') as f:
             for line in f:
-                vals = line.strip().split('\t') 
+                vals = line.strip().split('\t')
                 if len(vals) <= 1: continue
 
                 vid, vname = vals[0], vals[1]

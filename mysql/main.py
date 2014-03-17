@@ -43,8 +43,8 @@ def insert(session):
             session.add(Author(name))
 
             check_commit(session)
+    print "Finish author"
     session.commit()
-
 
     with open(DATA_FOLDER + VENUE_FILE) as f:
         for line in f:
@@ -52,6 +52,7 @@ def insert(session):
             session.add(Venue(name))
 
             check_commit(session)
+    print "Finish venue"
     session.commit()
 
     with open(DATA_FOLDER + PAPER_FILE) as f:
@@ -69,6 +70,7 @@ def insert(session):
             session.add(venue)
 
             check_commit(session)
+    print "Finish paper"
     session.commit()
 
     with open(DATA_FOLDER + TERM_FILE) as f:
@@ -77,6 +79,7 @@ def insert(session):
             session.add(Term(name))
 
             check_commit(session)
+    print "Finish term"
     session.commit()
 
     with open(DATA_FOLDER + PAPER_TERM_FILE) as f:
@@ -91,6 +94,7 @@ def insert(session):
             session.add(paper)
 
             check_commit(session)
+    print "Finish paper term"
     session.commit()
 
     with open(DATA_FOLDER + AUTHOR_PAPER_FILE) as f:
@@ -105,6 +109,7 @@ def insert(session):
             session.add(author)
 
             check_commit(session)
+    print "Finish author paper"
     session.commit()
 
     with open(DATA_FOLDER + CITATION_FILE) as f:
@@ -115,6 +120,7 @@ def insert(session):
             session.add(Citation(cites_id, cited_id))
 
             check_commit(session)
+    print "Finish citation"
     session.commit()
 
 def main():
