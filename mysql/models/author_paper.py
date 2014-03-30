@@ -1,7 +1,13 @@
-from sqlalchemy import Table, Integer, ForeignKey, Column
+from sqlalchemy import Column, Integer, String, Table
 from application import Base
 
-authors_papers_table = Table('authors_papers', Base.metadata,
-    Column('author_id', Integer, ForeignKey('authors.author_id')),
-    Column('paper_id', Integer, ForeignKey('papers.paper_id'))
-)
+class AuthorPaper(Base):
+    __tablename__ = 'authors-papers'
+
+    author_paper_id = Column(Integer, primary_key=True)
+    author_id = Column(Integer)
+    paper_id = Column(Integer)
+
+    def __init__(self, author_id, paper_id):
+        self.author_id = author_id
+        self.paper_id = paper_id

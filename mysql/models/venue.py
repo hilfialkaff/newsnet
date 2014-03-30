@@ -1,13 +1,11 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
 from application import Base
 
 class Venue(Base):
     __tablename__ = 'venues'
 
     venue_id = Column(Integer, primary_key=True)
-    name = Column(String(4096))
-    papers = relationship("Paper", cascade="all, delete, delete-orphan")
+    name = Column(String(500))
 
     def __repr__(self):
         return "Venue(name=%s)" % (self.name)

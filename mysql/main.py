@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from application import Base, engine
 from models import *
 import argparse
+import time
 
 DATA_FOLDER = "../data/"
 AUTHOR_PAPER_FILE = "author_paper.txt"
@@ -24,13 +25,17 @@ def init():
 
     return session
 
-def check_commit(session):
-    if check_commit.count == BATCH_SIZE:
-        print "Committing..."
-        session.commit()
-        check_commit.count = 0
+def check_commit(table, data):
+    ret = True
+    if len(data) != BATCH_SIZE:
+        ret = False
     else:
-        check_commit.count += 1
+        print "Committing..."
+        t0 = time.time()
+        engine.execute(table.__table__.insert(), data)
+        print "Finish committing in:", str(time.time() - t0)
+
+    return ret
 
 def insert(session):
     Base.metadata.drop_all(engine)
@@ -38,90 +43,100 @@ def insert(session):
 
     check_commit.count = 0
     with open(DATA_FOLDER + AUTHOR_FILE) as f:
+        data = []
         for line in f:
             name = line.strip('\n').split('\t')[1]
-            session.add(Author(name))
 
-            check_commit(session)
+            data.append({"name": name})
+            if check_commit(Author, data):
+                data = []
+
     print "Finish author"
-    session.commit()
 
     with open(DATA_FOLDER + VENUE_FILE) as f:
+        data = []
+
         for line in f:
             name = line.strip('\n').split('\t')[1]
-            session.add(Venue(name))
 
-            check_commit(session)
+            data.append({"name": name})
+            if check_commit(Venue, data):
+                data = []
+
     print "Finish venue"
-    session.commit()
 
     with open(DATA_FOLDER + PAPER_FILE) as f:
+        paper_data = []
+        venue_paper_data = []
+        count = 1
+
         for line in f:
             vals = line.strip('\n').split('\t')
             name = vals[1]
             venue_id = int(vals[2]) + 1
             year = vals[3]
 
-            venue = session.query(Venue).filter_by(venue_id=venue_id).first()
-            new_paper = Paper(name, year)
-            venue.papers.append(new_paper)
+            paper_data.append({"name": name, "year": year})
+            if check_commit(Paper, paper_data):
+                paper_data = []
 
-            session.add(new_paper)
-            session.add(venue)
+            venue_paper_data.append({"venue_id": venue_id, "paper_id": count})
+            if check_commit(VenuePaper, venue_paper_data):
+                venue_paper_data = []
 
-            check_commit(session)
+            count += 1
+
     print "Finish paper"
-    session.commit()
 
     with open(DATA_FOLDER + TERM_FILE) as f:
+        data = []
         for line in f:
             name = line.strip('\n').split('\t')[1]
-            session.add(Term(name))
 
-            check_commit(session)
+            data.append({"name": name})
+            if check_commit(Term, data):
+                data = []
+
     print "Finish term"
-    session.commit()
 
     with open(DATA_FOLDER + PAPER_TERM_FILE) as f:
+        data = []
         for line in f:
             _line = line.strip('\n').split('\t')
             paper_id = int(_line[0]) + 1
             term_id = int(_line[1]) + 1
 
-            paper = session.query(Paper).filter_by(paper_id=paper_id).first()
-            term = session.query(Term).filter_by(term_id=term_id).first()
-            paper.terms.append(term)
-            session.add(paper)
+            data.append({"paper_id": paper_id, "term_id": term_id})
+            if check_commit(PaperTerm, data):
+                data = []
 
-            check_commit(session)
     print "Finish paper term"
-    session.commit()
 
     with open(DATA_FOLDER + AUTHOR_PAPER_FILE) as f:
+        data = []
         for line in f:
             _line = line.strip('\n').split('\t')
             author_id = int(_line[0]) + 1
             paper_id = int(_line[1]) + 1
 
-            author = session.query(Author).filter_by(author_id=author_id).first()
-            paper = session.query(Paper).filter_by(paper_id=paper_id).first()
-            author.papers.append(paper)
-            session.add(author)
+            data.append({"author_id": author_id, "paper_id": paper_id})
+            if check_commit(AuthorPaper, data):
+                data = []
 
-            check_commit(session)
     print "Finish author paper"
-    session.commit()
 
     with open(DATA_FOLDER + CITATION_FILE) as f:
+        data = []
         for line in f:
             _line = line.strip('\n').split('\t')
             cites_id = int(_line[0]) + 1
             cited_id = int(_line[1]) + 1
-            session.add(Citation(cites_id, cited_id))
 
-            check_commit(session)
+            data.append({"cites_id": cites_id, "cited_id": cited_id})
+            if check_commit(Citation, data):
+                data = []
+
     print "Finish citation"
-    session.commit()
 
 def main():
     parser = argparse.ArgumentParser()

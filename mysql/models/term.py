@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String
 from application import Base
 
 class Term(Base):
@@ -6,7 +6,6 @@ class Term(Base):
 
     term_id = Column(Integer, primary_key=True)
     name = Column(String(255))
-    paper_id = Column(Integer, ForeignKey('papers.paper_id'))
 
     def __repr__(self):
         return "Term(name=%s)" % (self.name)
