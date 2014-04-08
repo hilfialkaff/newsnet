@@ -5,7 +5,7 @@ import cPickle as pickle
 import sys
 from collections import deque
 
-DATA_FOLDER = "../../data/"
+DATA_FOLDER = "../../data/full_data/"
 AUTHOR_PAPER_FILE = "author_paper.txt"
 AUTHOR_FILE = "authors.txt"
 CITATION_FILE = "citations.txt"
@@ -95,27 +95,25 @@ def bootstrap():
 
     # pickle.dump(root, open(DATA_FOLDER + PICKLE_FILE, "wb"))
 
-def find_path(node1, node2):
+def find_path(src, dst):
     queue = deque()
     paths = []
 
-    queue.append([node1])
+    queue.append([src])
     while len(queue) > 0:
         cur_path = queue.popleft()
         last_node = cur_path[-1]
 
-        # Prune this path
         if len(cur_path) == MAX_PATH_LENGTH:
             continue
 
-        # Got the top-k paths
         if len(paths) == TOP_K:
             break
 
         for neighbor in last_node.get_neighbors():
             new_path = cur_path[:] + [neighbor]
 
-            if neighbor.get_id() == node2.get_id() and neighbor.get_type() == node2.get_type():
+            if neighbor == dst:
                 paths.append(new_path)
             elif neighbor in cur_path:
                 continue
@@ -175,15 +173,7 @@ def shell():
         cmd = raw_input("Similarity search> ")
 
 def main():
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--pickle_it", help="Pickle the data", action='store_true')
-    # args = parser.parse_args()
-
-    # if args.pickle_it:
-    #     bootstrap()
-
-    # root = pickle.load(root, open(DATA_FOLDER + PICKLE_FILE, "wb"))
-
+    # TODO: Find how to use pickle
     bootstrap()
     shell()
 
