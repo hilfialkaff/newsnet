@@ -1,7 +1,7 @@
 class Node:
     AUTHOR_TYPE = "author"
     PAPER_TYPE = "paper"
-    VENUE_TYPE = "venue"
+    CONF_TYPE = "conf"
     TERM_TYPE = "term"
     CITES_LINK_TYPE = "cites"
     CITED_BY_LINK_TYPE = "cited_by"
