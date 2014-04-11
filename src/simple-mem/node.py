@@ -34,8 +34,8 @@ class Node:
 
     def get_neighbor(self, type, id, link_name=""):
         if (type, id, link_name) not in self._neighbors:
-            print "(%s, %s, %s) does not exist as neighbor of (%s, %s)" % \
-                (type, id, link_name, self._type, self._id)
+            # print "(%s, %s, %s) does not exist as neighbor of (%s, %s)" % \
+            #     (type, id, link_name, self._type, self._id)
             return None
 
         return self._neighbors[(type, id, link_name)]
@@ -45,8 +45,8 @@ class Node:
 
     def get_meta_paths(self, type, id):
         if (type, id) not in self._meta_paths:
-            print "(%s, %s): Metapath to (%s, %s) has not existed yet" % \
-                (self._type, self._id, type, id)
+            # print "(%s, %s): Metapath to (%s, %s) has not existed yet" % \
+            #     (self._type, self._id, type, id)
             return None
 
         return self._meta_paths[(type, id)]

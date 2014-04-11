@@ -6,14 +6,11 @@ import sys
 from collections import deque
 
 DATA_FOLDER = "../../data/hierarchy_data/"
-# AUTHOR_PAPER_FILE = "author_paper.txt"
 AUTHOR_FILE = "author.txt"
-# CITATION_FILE = "citations.txt"
 PAPER_FILE = "paper.txt"
-PAPER_TERM_FILE = "paper_term.txt"
 TERM_FILE = "term.txt"
 CONF_FILE = "conf.txt"
-RELATION_FILE = "relation.txt"
+RELATION_FILE = "new_relation.txt"
 PICKLE_FILE = "data.p"
 MAX_PATH_LENGTH = 5
 TOP_K = 1000 # Top k-path we are interested
@@ -54,39 +51,15 @@ def bootstrap():
 
             root.add_neighbor(new_term)
 
-    # print "Parsing paper term file..."
-    # with open(DATA_FOLDER + PAPER_TERM_FILE) as f:
-    #     count = 0
-    #     for line in f:
-    #         [paper_id, term_id] = line.strip('\n\r').split('\t')
+    print "Parsing relation file..."
+    with open(DATA_FOLDER + RELATION_FILE) as f:
+        for line in f:
+            [node1_id, node1_type, node2_id, node2_type, level] = line.strip('\n').split('\t')
 
-    #         paper = root.get_neighbor(Node.PAPER_TYPE, paper_id)
-    #         term = root.get_neighbor(Node.TERM_TYPE, term_id)
-
-    #         paper.add_neighbor(term)
-    #         term.add_neighbor(paper)
-
-    # print "Parsing author paper file..."
-    # with open(DATA_FOLDER + AUTHOR_PAPER_FILE) as f:
-    #     for line in f:
-    #         [author_id, paper_id] = line.strip('\n\r').split('\t')
-    #         author = root.get_neighbor(Node.AUTHOR_TYPE, author_id)
-    #         paper = root.get_neighbor(Node.PAPER_TYPE, paper_id)
-
-    #         author.add_neighbor(paper)
-    #         paper.add_neighbor(author)
-
-    # print "Parsing citation file..."
-    # with open(DATA_FOLDER + CITATION_FILE) as f:
-    #     for line in f:
-    #         [citing_paper_id, cited_paper_id] = line.strip('\n\r').split('\t')
-    #         citing_paper = root.get_neighbor(Node.PAPER_TYPE, citing_paper_id)
-    #         cited_paper = root.get_neighbor(Node.PAPER_TYPE, cited_paper_id)
-
-    #         citing_paper.add_neighbor(cited_paper, Node.CITES_LINK_TYPE)
-    #         cited_paper.add_neighbor(citing_paper, Node.CITED_BY_LINK_TYPE)
-
-    # pickle.dump(root, open(DATA_FOLDER + PICKLE_FILE, "wb"))
+            node1 = root.get_neighbor(node1_type, node1_id)
+            node2 = root.get_neighbor(node2_type, node2_id)
+            node1.add_neighbor(node2)
+            node2.add_neighbor(node1)
 
 def find_path(src, dst):
     queue = deque()
