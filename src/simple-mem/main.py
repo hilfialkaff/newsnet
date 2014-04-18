@@ -13,7 +13,7 @@ CONF_FILE = "conf.txt"
 RELATION_FILE = "new_relation.txt"
 PICKLE_FILE = "data.p"
 MAX_PATH_LENGTH = 5
-TOP_K = 1000 # Top k-path we are interested
+TOP_K = 50 # Top k-path we are interested
 
 # Store graph of entities. Root will be connected to all entities
 root = Node("root", 0)
@@ -61,6 +61,25 @@ def bootstrap():
             node1.add_neighbor(node2)
             node2.add_neighbor(node1)
 
+def is_path_valid(path):
+    d = {}
+    ret = True
+
+    for node in path:
+        node_type = node.get_type()
+
+        if node_type in d:
+            d[node_type] += 1
+
+            # Only pass a node type twice at most
+            if d[node_type] > 2:
+                ret = False
+                break
+        else:
+            d[node_type] = 1
+
+    return ret
+
 def find_path(src, dst):
     queue = deque()
     paths = []
@@ -79,6 +98,9 @@ def find_path(src, dst):
         for neighbor in last_node.get_neighbors():
             new_path = cur_path[:] + [neighbor]
 
+            if not is_path_valid(new_path):
+                continue
+
             if neighbor == dst:
                 paths.append(new_path)
             elif neighbor in cur_path:
@@ -86,7 +108,7 @@ def find_path(src, dst):
             else:
                 queue.append(new_path)
 
-    # print paths
+    print paths
     return paths
 
 # TODO: Better weight assigning?
@@ -138,10 +160,14 @@ def shell():
         print "Score: ", compute_similarity(type1, id1, type2, id2)
         cmd = raw_input("Similarity search> ")
 
+def test():
+    print "Similarity: ", compute_similarity("author", "42165", "author", "42167")
+
 def main():
     # TODO: Find how to use pickle
     bootstrap()
-    shell()
+    test()
+    # shell()
 
 if __name__ == '__main__':
     main()
