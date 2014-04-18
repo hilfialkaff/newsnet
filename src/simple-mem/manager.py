@@ -1,16 +1,19 @@
-from node import Node
 from collections import deque
+from node import Node
+from forest import Forest
 
 SHELL_PROMPT = "Command: "
-CMDS = ["quit", "search", "drill-down", "roll-up", "slice"]
-[QUIT, SEARCH, DRILL_DOWN, ROLL_UP, SLICE] = range(0, len(CMDS))
+CMDS = ["quit", "search", "drill-down", "roll-up", "slice", "restore"]
+[QUIT, SEARCH, DRILL_DOWN, ROLL_UP, SLICE, RESTORE] = range(0, len(CMDS))
 
 class Manager:
     MAX_PATH_LENGTH = 5
     TOP_K = 50 # Top k-path we are interested
 
-    def __init__(self, root):
-        self._root = root
+    def __init__(self, graph):
+        self._orig_graph = graph
+        self._cur_graph = self._orig_graph.copy()
+        self._forest = Forest()
 
     def shell(self):
         line = raw_input(SHELL_PROMPT)
@@ -20,17 +23,31 @@ class Manager:
 
             if cmd == CMDS[QUIT]:
                 break
+
             elif cmd == CMDS[SEARCH]:
                 [type1, id1, type2, id2] = line.split()[1:]
-                print type1, id1, type2, id2
-
                 print "Score: ", self.compute_similarity(type1, id1, type2, id2)
+
             elif cmd == CMDS[DRILL_DOWN]:
-                pass
-            elif cmd == CMDS[ROLL_UP]:
-                pass
+                [name, val] = line.split()[1:]
+
+                for node in self._cur_graph.get_nodes():
+                    if not self._forest.is_member(name, val, node):
+                        self._cur_graph.delete(node)
+
             elif cmd == CMDS[SLICE]:
-                pass
+                [name, val] = line.split()[1:]
+
+                for node in self._cur_graph.get_nodes():
+                    if not self._forest.is_slice(name, val, node):
+                        self._cur_graph.delete(node)
+
+            elif cmd == CMDS[RESTORE]:
+                for node in self._cur_graph.get_nodes():
+                    self._cur_graph.delete(node)
+
+                self._cur_graph = self._orig_graph.copy()
+
             else:
                 print "Invalid command:", cmd
 
@@ -99,8 +116,8 @@ class Manager:
 
     # bfs to the rescue
     def compute_similarity(self, type1, id1, type2, id2):
-        node1 = self._root.get_neighbor(type1, id1)
-        node2 = self._root.get_neighbor(type2, id2)
+        node1 = self._cur_graph.get_node(type1, id1)
+        node2 = self._cur_graph.get_node(type2, id2)
 
         node1_node1_path = node1.get_meta_paths(type1, id1)
         node2_node2_path = node2.get_meta_paths(type2, id2)
