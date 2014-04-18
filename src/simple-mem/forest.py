@@ -14,10 +14,10 @@ class Forest:
             'org': org
         }
 
-    def is_member(category, name, qid):
+    def is_member(self, category, name, qid):
         return self._forest[category].is_member(name, qid)
 
-    def is_slice(category, name, qid):
+    def is_slice(self, category, name, qid):
         return self._forest[category].is_slice(name, qid)
 
 if __name__ == "__main__":
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     print str(org)
 
     print area.is_member("root", "4")
-   
+
     print org.is_slice("root", "4")
     print org.is_slice("SIAM", "3")
     print org.is_slice("IEEE", "3")
