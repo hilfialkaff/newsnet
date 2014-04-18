@@ -25,20 +25,23 @@ class Node:
     def get_id(self):
         return self._id
 
-    def add_neighbor(self, node, link_name=""):
+    def get_info(self):
+        return self._info
+
+    def add_neighbor(self, node):
         if (node.get_type(), node.get_id()) in self._neighbors:
             print "! Adding the same neighbor twice"
             return
 
-        self._neighbors[(node.get_type(), node.get_id(), link_name)] = node
+        self._neighbors[(node.get_type(), node.get_id())] = node
 
-    def get_neighbor(self, type, id, link_name=""):
-        if (type, id, link_name) not in self._neighbors:
-            # print "(%s, %s, %s) does not exist as neighbor of (%s, %s)" % \
-            #     (type, id, link_name, self._type, self._id)
+    def get_neighbor(self, type, id):
+        if (type, id) not in self._neighbors:
+            # print "(%s, %s) does not exist as neighbor of (%s, %s)" % \
+            #     (type, id, self._type, self._id)
             return None
 
-        return self._neighbors[(type, id, link_name)]
+        return self._neighbors[(type, id)]
 
     def get_neighbors(self):
         return self._neighbors.values()
@@ -51,5 +54,11 @@ class Node:
 
         return self._meta_paths[(type, id)]
 
+    def get_all_meta_paths(self):
+        return self._meta_paths
+
     def add_meta_paths(self, type, id, paths):
         self._meta_paths[(type, id)] = paths
+
+    def set_meta_paths(self, meta_paths):
+        self._meta_paths = meta_paths
