@@ -145,7 +145,7 @@ def compute_similarity(type1, id1, type2, id2):
     node2_node2_score = compute_score(node2.get_meta_paths(type2, id2))
     node1_node2_score = compute_score(node1.get_meta_paths(type2, id2))
 
-    print node1_node1_score, node2_node2_score, node1_node2_score
+    # print node1_node1_score, node2_node2_score, node1_node2_score
     score = 2 * node1_node2_score / (node1_node1_score + node2_node2_score)
 
     return score
@@ -164,10 +164,16 @@ def test():
     print "Similarity: ", compute_similarity("author", "42165", "author", "42167")
 
 def main():
-    # TODO: Find how to use pickle
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--do_test", help="Only test", action='store_true')
+    args = parser.parse_args()
+
     bootstrap()
-    test()
-    # shell()
+    if args.do_test:
+        test()
+    else:
+        shell()
 
 if __name__ == '__main__':
     main()
