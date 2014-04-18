@@ -30,20 +30,37 @@ class Manager:
 
             elif cmd == CMDS[DRILL_DOWN]:
                 [name, val] = line.split()[1:]
+                to_delete = []
 
                 for node in self._cur_graph.get_nodes():
-                    if not self._forest.is_member(name, val, node):
-                        self._cur_graph.delete(node)
+                    # print name, val, node.get_category(name)
+                    category = node.get_category(name)
+                    if category and not self._forest.is_member(name, val, category):
+                        to_delete.append(node)
+
+                for node in to_delete:
+                    self._cur_graph.delete(node)
+
+                print "Nodes left:", len(self._cur_graph.get_nodes())
 
             elif cmd == CMDS[SLICE]:
                 [name, val] = line.split()[1:]
+                to_delete = []
 
                 for node in self._cur_graph.get_nodes():
-                    if not self._forest.is_slice(name, val, node):
-                        self._cur_graph.delete(node)
+                    if not self._forest.is_slice(name, val, node.get_category(name)):
+                        to_delete.append(node)
+
+                for node in to_delete:
+                    self._cur_graph.delete(node)
 
             elif cmd == CMDS[RESTORE]:
+                to_delete = []
+
                 for node in self._cur_graph.get_nodes():
+                    to_delete.append(node)
+
+                for node in to_delete:
                     self._cur_graph.delete(node)
 
                 self._cur_graph = self._orig_graph.copy()
@@ -55,6 +72,7 @@ class Manager:
 
     def test(self):
         print "Similarity: ", self.compute_similarity("author", "42165", "author", "42167")
+        print "Similarity: ", self.compute_similarity("author", "42675", "author", "42677")
 
     def is_path_valid(self, path):
         d = {}
@@ -103,7 +121,7 @@ class Manager:
                 else:
                     queue.append(new_path)
 
-        print paths
+        # print paths
         return paths
 
     # TODO: Better weight assigning?

@@ -36,6 +36,7 @@ class Graph:
         for node in self._nodes.values():
             new_node = Node(node.get_type(), node.get_id(), node.get_info())
             new_node.set_meta_paths(node.get_all_meta_paths())
+            new_node.add_categories(node.get_categories())
             new_graph.add_node(new_node)
 
         for node in self._nodes.values():

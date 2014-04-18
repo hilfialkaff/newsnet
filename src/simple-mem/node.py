@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 class Node:
     AUTHOR_TYPE = "author"
     PAPER_TYPE = "paper"
@@ -12,6 +14,7 @@ class Node:
         self._info = info
         self._neighbors = {} # key = (type, id), val = Node object
         self._meta_paths = {} # key = (type, id), val = list of paths
+        self._categories = {} # key = category, val = string id
 
     def __repr__(self):
         return "(%s, %s)" % (self._type, self._id)
@@ -27,6 +30,22 @@ class Node:
 
     def get_info(self):
         return self._info
+
+    def add_category(self, name, val):
+        self._categories[name] = val
+
+    def get_category(self, name):
+        if name not in self._categories.keys():
+            # print "Name %s does not exist" % (name)
+            return None
+
+        return self._categories[name]
+
+    def get_categories(self):
+        return deepcopy(self._categories)
+
+    def add_categories(self, categories):
+        self._categories = categories
 
     def add_neighbor(self, node):
         if (node.get_type(), node.get_id()) in self._neighbors:
@@ -55,7 +74,7 @@ class Node:
         return self._meta_paths[(type, id)]
 
     def get_all_meta_paths(self):
-        return self._meta_paths
+        return deepcopy(self._meta_paths)
 
     def add_meta_paths(self, type, id, paths):
         self._meta_paths[(type, id)] = paths

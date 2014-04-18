@@ -2,6 +2,8 @@ import argparse
 import time
 import cPickle as pickle
 import sys
+import re
+import os
 
 from graph import Graph
 from node import Node
@@ -13,6 +15,7 @@ PAPER_FILE = "paper.txt"
 TERM_FILE = "term.txt"
 CONF_FILE = "conf.txt"
 RELATION_FILE = "new_relation.txt"
+HIER_MAP = "Hier.map"
 PICKLE_FILE = "data.p"
 
 def bootstrap():
@@ -59,6 +62,24 @@ def bootstrap():
             node2 = graph.get_node(node2_type, node2_id)
             node1.add_neighbor(node2)
             node2.add_neighbor(node1)
+
+    for fname in os.listdir(DATA_FOLDER):
+        if not fname.endswith(HIER_MAP):
+            continue
+
+        pattern = re.compile("[A-Z]")
+        category_start = pattern.search(fname).start()
+        category_end = pattern.search(fname, category_start + 1).start()
+        node_type = fname[:category_start]
+        name = fname[category_start:category_end].lower()
+
+        with open(DATA_FOLDER + fname) as f:
+            for line in f:
+                _line = line.strip().split('\t')
+                node_id = _line[0]
+                val = _line[-1]
+                node = graph.get_node(node_type, node_id)
+                node.add_category(name, val)
 
     return graph
 
