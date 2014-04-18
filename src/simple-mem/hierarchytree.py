@@ -36,8 +36,6 @@ class HierarchyTree:
             # endwidth
         # end
 
-    def is
-
     def __str__(self):
         s = ""
         queue = deque([])
