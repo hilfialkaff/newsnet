@@ -1,5 +1,3 @@
-from collections import deque
-
 class HierarchyTree:
 
     class TreeNode:
@@ -13,12 +11,14 @@ class HierarchyTree:
         """
         Create an empty Hierarch tree
         """
+        self._names = {}
+        self._names['root'] = '0'
         self._tree = {}
         root = self.TreeNode('0', 'root', '0')
         self._tree = {'0': root}
 
 
-    def _build_tree(self,path):
+    def _build(self,path):
         # build the tree first
         with open(path, 'r') as f:
             for line in f:
@@ -26,34 +26,72 @@ class HierarchyTree:
                 cid = vals[0].strip()
                 cpid = vals[1]
                 cname = vals[2].strip()
-               
+              
+                # insert into tree
                 node = self.TreeNode(cid, cname, cpid)
                 self._tree[cid] = node
                 
                 parent = self._tree[cpid]
                 parent._children.append(cid)
-                # endfor
-            # endwidth
-        # end
+
+                # insert into names
+                self._names[cname] = cid
+            # endfor
+        # endwidth
+    # end
+
+    # API
+
+    def is_slice(self, name, qid):
+        cid = self._names[name]
+        return qid == cid
+
+    def is_member(self, name, qid):
+        cid = self._names[name]
+        stack = []
+        stack.append(cid)
+
+        while stack:
+            nid = stack.pop()
+
+            if nid == qid:
+                return True
+
+            for child in self._tree[nid]._children:
+                stack.append(child)
+        # endwhile
+        return False
+
 
     def __str__(self):
         s = ""
-        queue = deque([])
-        queue.append(('0',0))
+        stack = []
+        stack.append(('0',0))
         
-        while len(queue) > 0:
-            (nid, level) = queue.popleft()
+        while stack :
+            (nid, level) = stack.pop()
             s += "|"
             for i in range (0, level):
                 s += "____"
             s += " ( " + self._tree[nid]._name + ", " + self._tree[nid]._nid + " )\n"
 
             for cid in self._tree[nid]._children:
-                queue.append( (cid, level + 1) )
+                stack.append( (cid, level + 1) )
         # endwhile
         return s
 
 if __name__== "__main__":
     ht = HierarchyTree()
-    ht._build_tree('/Users/efekarakus/Work/NewsNet/newsnet/data/hierarchy_data/area.hier')
+    ht._build('/Users/efekarakus/Work/NewsNet/newsnet/data/hierarchy_data/area.hier')
     print str(ht)
+    
+    print "slicing"
+    print ht.is_slice('DB', '2')
+    print ht.is_slice('DB', '3')
+
+    print ""
+
+    print "is_member"
+    print ht.is_member('root', '2')
+    print ht.is_member('DB', '3')
+    print ht.is_member('DB', '2')
