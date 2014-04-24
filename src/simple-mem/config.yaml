@@ -1,0 +1,24 @@
+types:
+    - person
+    - article
+    - organization
+    - location
+    - topic
+nodes:
+    person: ../../data/nyt2013_ready/person.txt
+    article: ../../data/nyt2013_ready/article.txt
+    organization: ../../data/nyt2013_ready/organization.txt
+    location: ../../data/nyt2013_ready/location.txt
+    topic: ../../data/nyt2013_ready/topic.txt
+relations:
+    relation: ../../data/nyt2013_ready/relation.txt
+hierarchies:
+    person: ../../data/nyt2013_ready/pertype.hier
+    organization: ../../data/nyt2013_ready/orgtype.hier
+    location: ../../data/nyt2013_ready/lochier.hier
+    topic: ../../data/nyt2013_ready/topichier.hier
+maps:
+    person: ../../data/nyt2013_ready/pertype.map
+    organization: ../../data/nyt2013_ready/orgtype.map
+    location: ../../data/nyt2013_ready/lochier.map
+    topic: ../../data/nyt2013_ready/topichier.map
