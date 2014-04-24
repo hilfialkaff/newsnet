@@ -27,12 +27,20 @@ class HierarchyTree:
                 cpid = vals[1]
                 cname = vals[2].strip()
               
-                # insert into tree
-                node = self.TreeNode(cid, cname, cpid)
-                self._tree[cid] = node
+                if not cid in self._tree:
+                    # currently leaf
+                    node = self.TreeNode(cid, cname, cpid)
+                    self._tree[cid] = node
+                else:
+                    # was a parent of someone
+                    self._tree[cid]._name = cname
+                    self._tree[cid]._parent = cpid
                 
-                parent = self._tree[cpid]
-                parent._children.append(cid)
+                if not cpid in self._tree:
+                    self._tree[cpid] = self.TreeNode(cpid, None, None)
+                else:
+                    parent = self._tree[cpid]
+                    parent._children.append(cid)
 
                 # insert into names
                 self._names[cname] = cid

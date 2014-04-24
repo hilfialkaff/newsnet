@@ -1,8 +1,18 @@
 from hierarchytree import HierarchyTree
+import yaml
 
 class Forest:
 
     def __init__(self):
+        config = yaml.load( open('config.yaml', 'r') )
+        self._forest = {}
+        hierarchies = config['hierarchies']
+        for hierarchy in hierarchies:
+            print hierarchy, hierarchies[hierarchy]
+            self._forest[hierarchy] = HierarchyTree()
+            self._forest[hierarchy]._build( hierarchies[hierarchy] )
+       
+        """
         org = HierarchyTree()
         area = HierarchyTree()
 
@@ -13,6 +23,7 @@ class Forest:
             'area': area,
             'org': org
         }
+        """
 
     def is_member(self, category, name, qid):
         return self._forest[category].is_member(name, qid)
@@ -22,14 +33,5 @@ class Forest:
 
 if __name__ == "__main__":
     forest = Forest()
-    area = forest._forest['area']
-    org = forest._forest['org']
-
-    print str(area)
-    print str(org)
-
-    print area.is_member("root", "4")
-
-    print org.is_slice("root", "4")
-    print org.is_slice("SIAM", "3")
-    print org.is_slice("IEEE", "3")
+    for hier in forest._forest:
+        print forest._forest[hier]
