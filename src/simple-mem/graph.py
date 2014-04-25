@@ -23,7 +23,7 @@ class Graph:
         return self._nodes.values()
 
     def delete(self, node):
-        key = (node.get_type(), node.get_id())
+        key = node.get_id()
 
         if key in self._nodes:
             del self._nodes[key]
@@ -34,16 +34,13 @@ class Graph:
         new_graph = Graph()
 
         for node in self._nodes.values():
-            new_node = Node(node.get_type(), node.get_id(), node.get_info())
-            new_node.set_meta_paths(node.get_all_meta_paths())
-            new_node.add_categories(deepcopy(node.get_categories()))
-            new_graph.add_node(new_node)
+            new_graph.add_node(node.copy())
 
         for node in self._nodes.values():
-            new_graph_node = new_graph.get_node(node.get_type(), node.get_id())
+            new_graph_node = new_graph.get_node(node.get_id())
 
-            for neighbor in node.get_neighbors():
-                new_graph_neighbor = new_graph.get_node(neighbor.get_type(), neighbor.get_id())
+            for neighbor in node.get_neighbors().values():
+                new_graph_neighbor = new_graph.get_node(neighbor.get_id())
                 new_graph_node.add_neighbor(new_graph_neighbor)
 
         return new_graph

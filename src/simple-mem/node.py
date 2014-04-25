@@ -10,10 +10,10 @@ class Node:
         self._categories = {} # key = category, val = string id
 
     def __repr__(self):
-        return "(%s, %s)" % (self._type, self._id)
+        return "(%s:%s)" % (self._type, self._id)
 
     def __eq__(self, other):
-        return (self._type == other._type and self._id == other._id)
+        return self._id == other._id
 
     def get_type(self):
         return self._type
@@ -41,36 +41,66 @@ class Node:
         self._categories = categories
 
     def add_neighbor(self, node):
-        if (node.get_type(), node.get_id()) in self._neighbors:
+        if node.get_id() in self._neighbors:
             print "! Adding the same neighbor twice"
             return
 
-        self._neighbors[(node.get_type(), node.get_id())] = node
+        self._neighbors[node.get_id()] = node
 
-    def get_neighbor(self, type, id):
-        if (type, id) not in self._neighbors:
+    def get_neighbor(self, id):
+        if id not in self._neighbors:
             # print "(%s, %s) does not exist as neighbor of (%s, %s)" % \
             #     (type, id, self._type, self._id)
             return None
 
-        return self._neighbors[(type, id)]
+        return self._neighbors[id]
+
+    def delete_neighbor(self, node):
+        key = (node.get_type(), node.get_id())
+
+        if key not in self._neighbors:
+            print "%s does not exist as neighbor of (%s, %s)" % \
+                (key, self._type, self._id)
+            return False
+        else:
+            del self._neighbors[node.get_id()]
+            return True
 
     def get_neighbors(self):
-        return self._neighbors.values()
+        return self._neighbors
 
-    def get_meta_paths(self, type, id):
-        if (type, id) not in self._meta_paths:
+    def set_neighbors(self, neighbors):
+        self._neighbors = neighbors
+
+    def get_meta_paths(self, id):
+        if id not in self._meta_paths:
             # print "(%s, %s): Metapath to (%s, %s) has not existed yet" % \
             #     (self._type, self._id, type, id)
             return None
 
-        return self._meta_paths[(type, id)]
+        return self._meta_paths[id]
 
     def get_all_meta_paths(self):
-        return deepcopy(self._meta_paths)
+        return self._meta_paths
 
-    def add_meta_paths(self, type, id, paths):
-        self._meta_paths[(type, id)] = paths
+    def add_meta_paths(self, id, paths, version):
+        self._meta_paths[id] = (paths, version)
 
     def set_meta_paths(self, meta_paths):
         self._meta_paths = meta_paths
+
+    def print_meta_paths(self, node_id):
+        if node_id not in self._meta_paths:
+            print "Node %s doesn't exist in meta-path of %s" (node_id, self)
+            return
+
+        paths = self._meta_paths[node_id][0]
+        for i in range(len(paths)):
+            print "Path %d: %s" % (i, paths[i])
+
+    def copy(self):
+        new_node = Node(self.get_type(), self.get_id(), self.get_info())
+        new_node.set_meta_paths(deepcopy(self.get_all_meta_paths()))
+        new_node.add_categories(deepcopy(self.get_categories()))
+
+        return new_node

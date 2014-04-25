@@ -1,0 +1,22 @@
+types:
+    - person
+    - article
+    - organization
+    - location
+    - topic
+nodes:
+    author: ../../data/hierarchy_data/author.txt
+    conf: ../../data/hierarchy_data/conf.txt
+    paper: ../../data/hierarchy_data/paper.txt
+    term: ../../data/hierarchy_data/term.txt
+relations:
+    relation: ../../data/hierarchy_data/relation.txt
+hierarchies:
+    area: ../../data/hierarchy_data/area.hier
+    org: ../../data/hierarchy_data/org.hier
+maps:
+    author_area: ../../data/hierarchy_data/authorAreaHier.map
+    conf_area: ../../data/hierarchy_data/confAreaHier.map
+    conf_org: ../../data/hierarchy_data/confOrgHier.map
+    paper_area: ../../data/hierarchy_data/paperAreaHier.map
+    term_area: ../../data/hierarchy_data/termAreaHier.map
