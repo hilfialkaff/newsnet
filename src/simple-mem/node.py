@@ -42,7 +42,7 @@ class Node:
         return self._categories[name]
 
     def get_categories(self):
-        return deepcopy(self._categories)
+        return self._categories
 
     def add_categories(self, categories):
         self._categories = categories
