@@ -6,18 +6,18 @@ class Graph:
         self._nodes = {}
 
     def add_node(self, node):
-        if (node.get_type(), node.get_id()) in self._nodes:
+        if node.get_id() in self._nodes:
             print "! Adding the same node twice"
             return
 
-        self._nodes[(node.get_type(), node.get_id())] = node
+        self._nodes[node.get_id()] = node
 
-    def get_node(self, type, id):
-        if (type, id) not in self._nodes:
+    def get_node(self, node_id):
+        if node_id not in self._nodes:
             # print "(%s, %s) does not exist in graph" % (type, id)
             return None
 
-        return self._nodes[(type, id)]
+        return self._nodes[node_id]
 
     def get_nodes(self):
         return self._nodes.values()

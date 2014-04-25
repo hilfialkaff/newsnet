@@ -21,4 +21,4 @@ maps:
     person: ../../data/nyt2013_ready/pertype.map
     organization: ../../data/nyt2013_ready/orgtype.map
     location: ../../data/nyt2013_ready/lochier.map
-    topic: ../../data/nyt2013_ready/topichier.map
+    topic: ../../data/nyt2013_ready/topicHier.map

@@ -1,13 +1,6 @@
 from copy import deepcopy
 
 class Node:
-    AUTHOR_TYPE = "author"
-    PAPER_TYPE = "paper"
-    CONF_TYPE = "conf"
-    TERM_TYPE = "term"
-    CITES_LINK_TYPE = "cites"
-    CITED_BY_LINK_TYPE = "cited_by"
-
     def __init__(self, type, id, *info):
         self._type = type
         self._id = id
