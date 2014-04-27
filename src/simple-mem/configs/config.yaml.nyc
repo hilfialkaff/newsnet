@@ -18,7 +18,7 @@ hierarchies:
     location: ../../data/nyt2013_ready/lochier.hier
     topic: ../../data/nyt2013_ready/topicHier.hier
 maps:
-    person: ../../data/nyt2013_ready/pertype.map
-    organization: ../../data/nyt2013_ready/orgtype.map
-    location: ../../data/nyt2013_ready/lochier.map
-    topic: ../../data/nyt2013_ready/topicHier.map
+    person_pertype: ../../data/nyt2013_ready/pertype.map
+    organization_orgtype: ../../data/nyt2013_ready/orgtype.map
+    location_lochier: ../../data/nyt2013_ready/lochier.map
+    topic_topichier: ../../data/nyt2013_ready/topicHier.map
