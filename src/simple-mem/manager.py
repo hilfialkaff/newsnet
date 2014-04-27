@@ -73,7 +73,7 @@ class Manager:
 
         for category_value in self._subgraph[name].keys():
             if not self._forest.is_member(name, val, category_value):
-                return
+                continue
 
             for node_id in self._subgraph[name][category_value]:
                 if node_id in self._deleted_nodes:
