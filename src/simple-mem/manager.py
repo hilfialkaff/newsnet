@@ -6,24 +6,23 @@ import sys
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "display", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
-    "search_node"]
+    "search_node", "print_network_statistics"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
     TOP_K = 50 # Top k-path we are interested
 
     def __init__(self, graph):
-        self._orig_graph = graph
-        self._cur_graph = self._orig_graph.copy()
+        self._graph = graph
         self._forest = Forest()
         self._subgraph = {} # { category id: { category name: [ node id ]}}
         self._version = 0
         self._deleted_nodes = set()
 
-        self.build_subgraphs(graph)
+        self.build_subgraphs()
 
-    def build_subgraphs(self, graph):
-        for node in graph.get_nodes():
+    def build_subgraphs(self):
+        for node in self._graph.get_nodes():
             for name, val in node.get_categories().items():
                 if name not in self._subgraph:
                     self._subgraph[name] = {}
@@ -61,7 +60,7 @@ class Manager:
     def drill_down(self, line):
         [name, val] = line.split()[1:]
 
-        for node in self._cur_graph.get_nodes():
+        for node in self._graph.get_nodes():
             # print name, val, node.get_category(name)
             category = node.get_category(name)
             if category and not self._forest.is_member(name, val, category):
@@ -85,38 +84,38 @@ class Manager:
     def restore(self, line):
         to_delete = []
 
-        for node in self._cur_graph.get_nodes():
+        for node in self._graph.get_nodes():
             to_delete.append(node)
 
         for node in to_delete:
-            self._cur_graph.delete(node)
+            self._graph.delete(node)
 
-        self._cur_graph = self._orig_graph.copy()
+        self._graph = self._orig_graph.copy()
 
     def print_nodes(self, line):
-        for node in self._cur_graph.get_nodes():
+        for node in self._graph.get_nodes():
             if node.get_id() not in self._deleted_nodes:
                 print node
 
     def print_num_nodes(self, line):
         print "Number of nodes: %d " % \
-            (len(self._cur_graph.get_nodes()) - len(self._deleted_nodes))
+            (len(self._graph.get_nodes()) - len(self._deleted_nodes))
 
     def print_neighbors(self, line):
         node_id = line.split()[1]
-        node = self._cur_graph.get_node(node_id)
+        node = self._graph.get_node(node_id)
 
         if node is None:
             print "Node %s doesn't exist" % (node)
         else:
             print "Node %s's neighbors" % (node)
-            for neighbor in node.get_neighbors():
+            for neighbor in self.get_neighbors(node):
                 print "--> %s" % (neighbor)
 
     def print_meta_paths(self, line):
         [id1, id2] = line.split()[1:]
-        node1 = self._cur_graph.get_node(id1)
-        node2 = self._cur_graph.get_node(id2)
+        node1 = self._graph.get_node(id1)
+        node2 = self._graph.get_node(id2)
 
         if id1 in self._deleted_nodes or node1 is None:
             print "Node %s doesn't exist" % (id1)
@@ -127,9 +126,48 @@ class Manager:
 
         node1.print_meta_paths(id2)
 
+    def print_network_statistics(self, line):
+        def stddev(l):
+            import math
+
+            mean = sum(l)/len(l)
+            return math.sqrt(sum([_ in mean for _ in l])/len(l))
+
+        def print_degree():
+            degrees = []
+
+            for node in self._graph.get_nodes():
+                degrees.append(len(self.get_neighbors(node)))
+
+            print "- Degree of node avg: %d stddev: %f" % \
+                (float(sum(degrees))/len(degrees), stddev(degrees))
+
+        def print_clustering_coeff():
+            clustering_coeff = []
+
+            for node in self._graph.get_nodes():
+                neighbors = self.get_neighbors(node)
+                neighbors_id = set([node.get_id() for node in neighbors])
+                count = 0
+                num_neighbors = len(neighbors) if len(neighbors) else 1
+
+                for neighbor in neighbors:
+                    _neighbors = self.get_neighbors(node)
+                    for _neighbor in _neighbors:
+                        if _neighbor.get_id() in neighbors_id:
+                            count += 1
+
+                clustering_coeff.append(float(count)/num_neighbors)
+
+            print "- Clustering coefficient avg: %d stddev: %f" % \
+                (float(sum(clustering_coeff))/len(clustering_coeff), stddev(clustering_coeff))
+
+        print_degree()
+        print_clustering_coeff()
+
     def search_node(self, line):
         node_id = line.split()[1]
-        node = self._cur_graph.get_node(node_id)
+        node = self._graph.get_node(node_id)
 
         if node_id in self._deleted_nodes or node is None:
             print "Node %s doesn't exist" % (node_id)
@@ -182,7 +220,7 @@ class Manager:
             if len(paths) == self.TOP_K:
                 break
 
-            for neighbor in last_node.get_neighbors().values():
+            for neighbor in self.get_neighbors(last_node).values():
                 if neighbor.get_id() in self._deleted_nodes:
                     continue
 
@@ -198,7 +236,6 @@ class Manager:
                 else:
                     queue.append(new_path)
 
-        # print paths
         return paths
 
     # TODO: Better weight assigning
@@ -211,8 +248,8 @@ class Manager:
 
     # bfs to the rescue
     def compute_similarity(self, id1, id2):
-        node1 = self._cur_graph.get_node(id1)
-        node2 = self._cur_graph.get_node(id2)
+        node1 = self._graph.get_node(id1)
+        node2 = self._graph.get_node(id2)
 
         node1_node1_path = node1.get_meta_paths(id1)
         node2_node2_path = node2.get_meta_paths(id2)
@@ -239,3 +276,6 @@ class Manager:
         score = 2 * node1_node2_score / (node1_node1_score + node2_node2_score)
 
         return score
+
+    def get_neighbors(self, node):
+        return [n for n in node.get_neighbors().values() if n.get_id() not in self._deleted_nodes]
