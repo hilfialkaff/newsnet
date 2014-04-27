@@ -6,7 +6,7 @@ import sys
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "display", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
-    "search_node", "print_network_statistics"]
+    "search_node", "print_network_statistics", "rank"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
@@ -39,13 +39,13 @@ class Manager:
             if cmd not in CMDS:
                 print "Invalid command:", cmd
 
-            eval("self." + cmd)(line)
+            eval("self." + cmd)(line.split()[1:])
 
     def quit(self, line):
         sys.exit(0)
 
-    def similarity(self, line):
-        [id1, id2] = line.split()[1:]
+    def similarity(self, _):
+        [id1, id2] = _
 
         if id1 in self._deleted_nodes:
             print "Node %s doesn't exist in current sub-graph" % (id1)
@@ -57,8 +57,8 @@ class Manager:
 
         print "Score: ", self.compute_similarity(id1, id2)
 
-    def drill_down(self, line):
-        [name, val] = line.split()[1:]
+    def drill_down(self, _):
+        [name, val] = _
 
         for node in self._graph.get_nodes():
             # print name, val, node.get_category(name)
@@ -68,8 +68,8 @@ class Manager:
 
         self._version += 1
 
-    def roll_up(self, line):
-        [name, val] = line.split()[1:]
+    def roll_up(self, _):
+        [name, val] = _
 
         for category_value in self._subgraph[name].keys():
             if not self._forest.is_member(name, val, category_value):
@@ -81,7 +81,7 @@ class Manager:
 
         self._version += 1
 
-    def restore(self, line):
+    def restore(self, _):
         to_delete = []
 
         for node in self._graph.get_nodes():
@@ -92,16 +92,16 @@ class Manager:
 
         self._graph = self._orig_graph.copy()
 
-    def print_nodes(self, line):
+    def print_nodes(self, _):
         for node in self._graph.get_nodes():
             if node.get_id() not in self._deleted_nodes:
                 print node
 
-    def print_num_nodes(self, line):
+    def print_num_nodes(self, _):
         print "Number of nodes: %d " % \
             (len(self._graph.get_nodes()) - len(self._deleted_nodes))
 
-    def print_neighbors(self, line):
+    def print_neighbors(self, _):
         node_id = line.split()[1]
         node = self._graph.get_node(node_id)
 
@@ -112,8 +112,8 @@ class Manager:
             for neighbor in self.get_neighbors(node):
                 print "--> %s" % (neighbor)
 
-    def print_meta_paths(self, line):
-        [id1, id2] = line.split()[1:]
+    def print_meta_paths(self, _):
+        [id1, id2] = _
         node1 = self._graph.get_node(id1)
         node2 = self._graph.get_node(id2)
 
@@ -126,7 +126,16 @@ class Manager:
 
         node1.print_meta_paths(id2)
 
-    def print_network_statistics(self, line):
+    def search_node(self, _):
+        node_id = _[0]
+        node = self._graph.get_node(node_id)
+
+        if node_id in self._deleted_nodes or node is None:
+            print "Node %s doesn't exist" % (node_id)
+        else:
+            print "Node %s exists" % (node)
+
+    def print_network_statistics(self, _):
         def stddev(l):
             import math
 
@@ -164,16 +173,6 @@ class Manager:
 
         print_degree()
         print_clustering_coeff()
-
-    def search_node(self, line):
-        node_id = line.split()[1]
-        node = self._graph.get_node(node_id)
-
-        if node_id in self._deleted_nodes or node is None:
-            print "Node %s doesn't exist" % (node_id)
-        else:
-            print "Node %s exists" % (node)
-
 
     def test_nyc(self):
         print "Similarity: ", self.compute_similarity("0", "3420")
