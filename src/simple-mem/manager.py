@@ -1,10 +1,12 @@
 from collections import deque
 from node import Node
 from forest import Forest
+import sys
 
 SHELL_PROMPT = "Command: "
-CMDS = ["quit", "similarity", "drill-down", "roll-up", "slice", "restore", "display"]
-[QUIT, SIMILARITY, DRILL_DOWN, ROLL_UP, SLICE, RESTORE, DISPLAY] = range(0, len(CMDS))
+CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "display", \
+    "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
+    "search_node"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
@@ -35,113 +37,105 @@ class Manager:
             line = raw_input(SHELL_PROMPT)
             cmd = line.split()[0]
 
-            if cmd == CMDS[QUIT]:
-                break
-
-            elif cmd == CMDS[SIMILARITY]:
-                [id1, id2] = line.split()[1:]
-
-                if id1 in self._deleted_nodes:
-                    print "Node %s doesn't exist in current sub-graph" % (id1)
-                    continue
-
-                if id2 in self._deleted_nodes:
-                    print "Node %s doesn't exist in current sub-graph" % (id2)
-                    continue
-
-                print "Score: ", self.compute_similarity(id1, id2)
-
-            elif cmd == CMDS[DRILL_DOWN]:
-                [name, val] = line.split()[1:]
-
-                for node in self._cur_graph.get_nodes():
-                    # print name, val, node.get_category(name)
-                    category = node.get_category(name)
-                    if category and not self._forest.is_member(name, val, category):
-                        self._deleted_nodes.add(node.get_id())
-
-                self._version += 1
-
-            elif cmd == CMDS[SLICE]:
-                [name, val] = line.split()[1:]
-                to_delete = []
-
-                for node in self._cur_graph.get_nodes():
-                    if not self._forest.is_slice(name, val, node.get_category(name)):
-                        to_delete.append(node)
-
-                for node in to_delete:
-                    self._cur_graph.delete(node)
-
-            elif cmd == CMDS[ROLL_UP]:
-                [name, val] = line.split()[1:]
-
-                for category_value in self._subgraph[name].keys():
-                    if not self._forest.is_member(name, val, category_value):
-                        continue
-
-                    for node_id in self._subgraph[name][category_value]:
-                        if node_id in self._deleted_nodes:
-                            self._deleted_nodes.remove(node_id)
-
-                self._version += 1
-
-            elif cmd == CMDS[RESTORE]:
-                to_delete = []
-
-                for node in self._cur_graph.get_nodes():
-                    to_delete.append(node)
-
-                for node in to_delete:
-                    self._cur_graph.delete(node)
-
-                self._cur_graph = self._orig_graph.copy()
-
-            elif cmd == "print_nodes":
-                for node in self._cur_graph.get_nodes():
-                    if node.get_id() not in self._deleted_nodes:
-                        print node
-
-            elif cmd == "print_num_nodes":
-                print "Number of nodes: %d " % \
-                    (len(self._cur_graph.get_nodes()) - len(self._deleted_nodes))
-
-            elif cmd == "print_neighbors":
-                node_id = line.split()[1]
-                node = self._cur_graph.get_node(node_id)
-
-                if node is None:
-                    print "Node %s doesn't exist" % (node)
-                else:
-                    print "Node %s's neighbors" % (node)
-                    for neighbor in node.get_neighbors():
-                        print "--> %s" % (neighbor)
-
-            elif cmd == "print_meta_paths":
-                [id1, id2] = line.split()[1:]
-                node1 = self._cur_graph.get_node(id1)
-                node2 = self._cur_graph.get_node(id2)
-
-                if id1 in self._deleted_nodes or node1 is None:
-                    print "Node %s doesn't exist" % (id1)
-                    continue
-                if id2 in self._deleted_nodes or node2 is None:
-                    print "Node %s doesn't exist" % (id2)
-                    continue
-
-                node1.print_meta_paths(id2)
-
-            elif cmd == "search_node":
-                node_id = line.split()[1]
-                node = self._cur_graph.get_node(node_id)
-
-                if node_id in self._deleted_nodes or node is None:
-                    print "Node %s doesn't exist" % (node_id)
-                else:
-                    print "Node %s exists" % (node)
-
-            else:
+            if cmd not in CMDS:
                 print "Invalid command:", cmd
+
+            eval("self." + cmd)(line)
+
+    def quit(self, line):
+        sys.exit(0)
+
+    def similarity(self, line):
+        [id1, id2] = line.split()[1:]
+
+        if id1 in self._deleted_nodes:
+            print "Node %s doesn't exist in current sub-graph" % (id1)
+            return
+
+        if id2 in self._deleted_nodes:
+            print "Node %s doesn't exist in current sub-graph" % (id2)
+            return
+
+        print "Score: ", self.compute_similarity(id1, id2)
+
+    def drill_down(self, line):
+        [name, val] = line.split()[1:]
+
+        for node in self._cur_graph.get_nodes():
+            # print name, val, node.get_category(name)
+            category = node.get_category(name)
+            if category and not self._forest.is_member(name, val, category):
+                self._deleted_nodes.add(node.get_id())
+
+        self._version += 1
+
+    def roll_up(self, line):
+        [name, val] = line.split()[1:]
+
+        for category_value in self._subgraph[name].keys():
+            if not self._forest.is_member(name, val, category_value):
+                return
+
+            for node_id in self._subgraph[name][category_value]:
+                if node_id in self._deleted_nodes:
+                    self._deleted_nodes.remove(node_id)
+
+        self._version += 1
+
+    def restore(self, line):
+        to_delete = []
+
+        for node in self._cur_graph.get_nodes():
+            to_delete.append(node)
+
+        for node in to_delete:
+            self._cur_graph.delete(node)
+
+        self._cur_graph = self._orig_graph.copy()
+
+    def print_nodes(self, line):
+        for node in self._cur_graph.get_nodes():
+            if node.get_id() not in self._deleted_nodes:
+                print node
+
+    def print_num_nodes(self, line):
+        print "Number of nodes: %d " % \
+            (len(self._cur_graph.get_nodes()) - len(self._deleted_nodes))
+
+    def print_neighbors(self, line):
+        node_id = line.split()[1]
+        node = self._cur_graph.get_node(node_id)
+
+        if node is None:
+            print "Node %s doesn't exist" % (node)
+        else:
+            print "Node %s's neighbors" % (node)
+            for neighbor in node.get_neighbors():
+                print "--> %s" % (neighbor)
+
+    def print_meta_paths(self, line):
+        [id1, id2] = line.split()[1:]
+        node1 = self._cur_graph.get_node(id1)
+        node2 = self._cur_graph.get_node(id2)
+
+        if id1 in self._deleted_nodes or node1 is None:
+            print "Node %s doesn't exist" % (id1)
+            return
+        if id2 in self._deleted_nodes or node2 is None:
+            print "Node %s doesn't exist" % (id2)
+            return
+
+        node1.print_meta_paths(id2)
+
+    def search_node(self, line):
+        node_id = line.split()[1]
+        node = self._cur_graph.get_node(node_id)
+
+        if node_id in self._deleted_nodes or node is None:
+            print "Node %s doesn't exist" % (node_id)
+        else:
+            print "Node %s exists" % (node)
+
 
     def test_nyc(self):
         print "Similarity: ", self.compute_similarity("0", "3420")
