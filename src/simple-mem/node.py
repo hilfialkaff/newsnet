@@ -10,7 +10,7 @@ class Node:
         self._categories = {} # key = category, val = string id
 
     def __repr__(self):
-        return "(%s:%s)" % (self._type, self._id)
+        return "(%s:%s:%s)" % (self._type, self._id, self._categories)
 
     def __eq__(self, other):
         return self._id == other._id

@@ -2,6 +2,8 @@ from collections import deque
 from node import Node
 from forest import Forest
 import sys
+import time
+import random
 
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "display", \
@@ -22,7 +24,7 @@ class Manager:
         self.build_subgraphs()
 
     def build_subgraphs(self):
-        for node in self._graph.get_nodes():
+        for node in self.get_nodes():
             for name, val in node.get_categories().items():
                 if name not in self._subgraph:
                     self._subgraph[name] = {}
@@ -47,6 +49,8 @@ class Manager:
     def similarity(self, _):
         [id1, id2] = _
 
+        start = time.time()
+
         if id1 in self._deleted_nodes:
             print "Node %s doesn't exist in current sub-graph" % (id1)
             return
@@ -55,21 +59,28 @@ class Manager:
             print "Node %s doesn't exist in current sub-graph" % (id2)
             return
 
-        print "Score: ", self.compute_similarity(id1, id2)
+        score = self.compute_similarity(id1, id2)
+        print "Time taken for similarity search: %f" % (time.time() - start)
+        print "Score: ", score
 
     def drill_down(self, _):
         [name, val] = _
 
-        for node in self._graph.get_nodes():
+        start = time.time()
+
+        for node in self.get_nodes():
             # print name, val, node.get_category(name)
             category = node.get_category(name)
             if category and not self._forest.is_member(name, val, category):
                 self._deleted_nodes.add(node.get_id())
 
+        print "Time taken for drill-down: %f" % (time.time() - start)
         self._version += 1
 
     def roll_up(self, _):
         [name, val] = _
+
+        start = time.time()
 
         for category_value in self._subgraph[name].keys():
             if not self._forest.is_member(name, val, category_value):
@@ -79,12 +90,13 @@ class Manager:
                 if node_id in self._deleted_nodes:
                     self._deleted_nodes.remove(node_id)
 
+        print "Time taken for roll-up: %f" % (time.time() - start)
         self._version += 1
 
     def restore(self, _):
         to_delete = []
 
-        for node in self._graph.get_nodes():
+        for node in self.get_nodes():
             to_delete.append(node)
 
         for node in to_delete:
@@ -93,13 +105,11 @@ class Manager:
         self._graph = self._orig_graph.copy()
 
     def print_nodes(self, _):
-        for node in self._graph.get_nodes():
-            if node.get_id() not in self._deleted_nodes:
-                print node
+        for node in self.get_nodes():
+            print node
 
     def print_num_nodes(self, _):
-        print "Number of nodes: %d " % \
-            (len(self._graph.get_nodes()) - len(self._deleted_nodes))
+        print "Number of nodes: %d " % (len(self.get_nodes()))
 
     def print_neighbors(self, _):
         node_id = line.split()[1]
@@ -140,12 +150,12 @@ class Manager:
             import math
 
             mean = sum(l)/len(l)
-            return math.sqrt(sum([_ in mean for _ in l])/len(l))
+            return math.sqrt(float(sum([(_ - mean)**2 for _ in l]))/len(l))
 
         def print_degree():
             degrees = []
 
-            for node in self._graph.get_nodes():
+            for node in self.get_nodes():
                 degrees.append(len(self.get_neighbors(node)))
 
             print "- Degree of node avg: %d stddev: %f" % \
@@ -154,7 +164,7 @@ class Manager:
         def print_clustering_coeff():
             clustering_coeff = []
 
-            for node in self._graph.get_nodes():
+            for node in self.get_nodes():
                 neighbors = self.get_neighbors(node)
                 neighbors_id = set([node.get_id() for node in neighbors])
                 count = 0
@@ -172,13 +182,40 @@ class Manager:
                 (float(sum(clustering_coeff))/len(clustering_coeff), stddev(clustering_coeff))
 
         print_degree()
-        print_clustering_coeff()
+        # print_clustering_coeff()
 
     def test_nyc(self):
         print "Similarity: ", self.compute_similarity("0", "3420")
 
     def test_dblp(self):
-        print "Similarity: ", self.compute_similarity("42675", "42677")
+        self.print_network_statistics([])
+        nodes = [node for node in self.get_nodes() if node.get_type() == "author"]
+
+        for _ in range(100):
+            node1 = random.choice(nodes)
+            node2 = random.choice(nodes)
+
+            while node1 == node2:
+                node2 = random.choice(nodes)
+
+            self.similarity([node1.get_id(), node2.get_id()])
+
+        for _ in range(100):
+            self.drill_down(["area", "DB"])
+            self.roll_up(["area", "root"])
+
+        self.drill_down(["area", "DB"])
+        self.print_network_statistics([])
+        nodes = [node for node in self.get_nodes() if node.get_type() == "author"]
+
+        for _ in range(100):
+            node1 = random.choice(nodes)
+            node2 = random.choice(nodes)
+
+            while node1 == node2:
+                node2 = random.choice(nodes)
+
+            self.similarity([node1.get_id(), node2.get_id()])
 
     def test(self):
         print "Computing similarity..."
@@ -219,7 +256,7 @@ class Manager:
             if len(paths) == self.TOP_K:
                 break
 
-            for neighbor in self.get_neighbors(last_node).values():
+            for neighbor in self.get_neighbors(last_node):
                 if neighbor.get_id() in self._deleted_nodes:
                     continue
 
@@ -278,3 +315,6 @@ class Manager:
 
     def get_neighbors(self, node):
         return [n for n in node.get_neighbors().values() if n.get_id() not in self._deleted_nodes]
+
+    def get_nodes(self):
+        return [n for n in self._graph.get_nodes() if n.get_id() not in self._deleted_nodes]
