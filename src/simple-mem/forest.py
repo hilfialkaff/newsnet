@@ -8,10 +8,9 @@ class Forest:
         self._forest = {}
         hierarchies = config['hierarchies']
         for hierarchy in hierarchies:
-            print hierarchy, hierarchies[hierarchy]
             self._forest[hierarchy] = HierarchyTree()
             self._forest[hierarchy]._build( hierarchies[hierarchy] )
-       
+
         """
         org = HierarchyTree()
         area = HierarchyTree()
@@ -30,6 +29,15 @@ class Forest:
 
     def is_slice(self, category, name, qid):
         return self._forest[category].is_slice(name, qid)
+
+    def get_categories(self):
+        return self._forest.keys()
+
+    def get_children(self, category, name):
+        return self._forest[category].get_children(name)
+
+    def get_parent(self, category, name):
+        return self._forest[category].get_parent(name)
 
 if __name__ == "__main__":
     forest = Forest()

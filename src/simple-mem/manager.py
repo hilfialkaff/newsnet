@@ -7,9 +7,9 @@ import random
 import logging
 
 SHELL_PROMPT = "Command: "
-CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", \
+CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "rank", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
-    "search_node", "print_network_statistics", "rank"]
+    "search_node", "print_network_statistics", "print_children", "print_parent", "print_node"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
@@ -21,13 +21,14 @@ class Manager:
         self._subgraph = {} # { category id: { category name: [ node id ]}}
         self._version = 0
         self._deleted_nodes = set()
+        self._current_level = dict([(category, "root") for category in self._forest.get_categories()])
 
         self.build_subgraphs()
         self.set_logging()
 
     def set_logging(self):
         logging.basicConfig(filename="result.log", format='%(asctime)-15s %(message)s')
-        self.logger = logging.getLogger()
+        self._logger = logging.getLogger()
 
     def build_subgraphs(self):
         for node in self.get_nodes():
@@ -46,6 +47,7 @@ class Manager:
 
             if cmd not in CMDS:
                 print "Invalid command:", cmd
+                continue
 
             eval("self." + cmd)(line.split()[1:])
 
@@ -66,8 +68,9 @@ class Manager:
             return
 
         score = self.compute_similarity(id1, id2)
-        self.logger.warning("Time taken for similarity search: %f" % (time.time() - start))
-        self.logger.warning("Score: ", score)
+        print "score:", score
+        self._logger.warning("Time taken for similarity search: %f" % (time.time() - start))
+        self._logger.warning("Score: %s " %(score))
 
     def drill_down(self, _):
         [name, val] = _
@@ -79,7 +82,10 @@ class Manager:
             if category and not self._forest.is_member(name, val, category):
                 self._deleted_nodes.add(node.get_id())
 
-        self.logger.warning("Time taken for drill-down: %f" % (time.time() - start))
+        self._logger.warning("Time taken for drill-down: %f" % (time.time() - start))
+        # self._logger.warning("deleted nodes: %d" % (len(self._deleted_nodes)))
+        # self._logger.warning("deleted nodes: %s" % (self._deleted_nodes))
+        self._current_level[name] = val
         self._version += 1
 
     def roll_up(self, _):
@@ -89,13 +95,17 @@ class Manager:
 
         for category_value in self._subgraph[name].keys():
             if not self._forest.is_member(name, val, category_value):
+                self._logger.warning("%s %s %s" % (name, val, category_value))
                 continue
 
             for node_id in self._subgraph[name][category_value]:
                 if node_id in self._deleted_nodes:
                     self._deleted_nodes.remove(node_id)
 
-        self.logger.warning("Time taken for roll-up: %f" % (time.time() - start))
+        self._logger.warning("Time taken for roll-up: %f" % (time.time() - start))
+        # self._logger.warning("deleted nodes: %d" % (len(self._deleted_nodes)))
+        # self._logger.warning("deleted nodes: %s" % (self._deleted_nodes))
+        self._current_level[name] = val
         self._version += 1
 
     def restore(self, _):
@@ -109,12 +119,17 @@ class Manager:
 
         self._graph = self._orig_graph.copy()
 
+    def print_node(self, _):
+        [node_id] = _
+
+        print self._graph.get_node(node_id)
+
     def print_nodes(self, _):
         for node in self.get_nodes():
-            self.logger.warning(node)
+            self._logger.warning(node)
 
     def print_num_nodes(self, _):
-        self.logger.warning("Number of nodes: %d " % (len(self.get_nodes())))
+        print "Number of nodes: %d " % (len(self.get_nodes()))
 
     def print_neighbors(self, _):
         node_id = line.split()[1]
@@ -163,7 +178,7 @@ class Manager:
             for node in self.get_nodes():
                 degrees.append(len(self.get_neighbors(node)))
 
-            self.logger.warning("- Degree of node avg: %d stddev: %f" % \
+            self._logger.warning("- Degree of node avg: %d stddev: %f" % \
                 (float(sum(degrees))/len(degrees), stddev(degrees)))
 
         def print_clustering_coeff():
@@ -183,14 +198,47 @@ class Manager:
 
                 clustering_coeff.append(float(count)/num_neighbors)
 
-            self.logger.warning("- Clustering coefficient avg: %d stddev: %f" % \
+            self._logger.warning("- Clustering coefficient avg: %d stddev: %f" % \
                 (float(sum(clustering_coeff))/len(clustering_coeff), stddev(clustering_coeff)))
 
         print_degree()
         # print_clustering_coeff()
 
-    def test_nyc(self):
-        print "Similarity: ", self.compute_similarity("0", "3420")
+    def print_children(self, _):
+        for category, name in self._current_level.items():
+            print "Category: %s, name: %s" % (category, name)
+            for child in self._forest.get_children(category, name):
+                print "- " + child
+            print ""
+
+    def print_parent(self, _):
+        for category, name in self._current_level.items():
+            print "Category: %s, name: %s" % (category, name)
+            print "- " + self._forest.get_parent(category, name)
+            print ""
+
+    def test_nyt(self):
+        self.print_network_statistics([])
+        nodes = [node for node in self.get_nodes() if node.get_type() == "article"]
+
+        for _ in range(100):
+            self.drill_down(["loctype", "Eurasia"])
+            self.drill_down(["loctype", "Jordan"])
+            self.roll_up(["loctype", "Eurasia"])
+            self.roll_up(["loctype", "root"])
+
+        self.drill_down(["loctype", "Eurasia"])
+        self.print_network_statistics([])
+        nodes = [node for node in self.get_nodes() if node.get_type() == "article"]
+
+        for _ in range(100):
+            node1 = random.choice(nodes)
+            node2 = random.choice(nodes)
+
+            while node1 == node2:
+                node2 = random.choice(nodes)
+
+            self.similarity([node1.get_id(), node2.get_id()])
 
     def test_dblp(self):
         self.print_network_statistics([])
@@ -224,8 +272,8 @@ class Manager:
 
     def test(self):
         print "Computing similarity..."
-        # self.test_nyc()
-        self.test_dblp()
+        self.test_nyt()
+        # self.test_dblp()
 
     def is_path_valid(self, path):
         d = {}

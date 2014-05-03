@@ -6,6 +6,7 @@ class HierarchyTree:
             self._name = name
             self._pid = pid
             self._children = []
+            self._parent = []
 
     def __init__(self):
         """
@@ -26,7 +27,7 @@ class HierarchyTree:
                 cid = vals[0].strip()
                 cpid = vals[1]
                 cname = vals[2].strip()
-              
+
                 if not cid in self._tree:
                     # currently leaf
                     node = self.TreeNode(cid, cname, cpid)
@@ -35,7 +36,7 @@ class HierarchyTree:
                     # was a parent of someone
                     self._tree[cid]._name = cname
                     self._tree[cid]._parent = cpid
-                
+
                 if not cpid in self._tree:
                     self._tree[cpid] = self.TreeNode(cpid, None, None)
                 else:
@@ -70,12 +71,36 @@ class HierarchyTree:
         # endwhile
         return False
 
+    def get_children(self, name):
+        result = []
+        id = self._names[name]
+        children_id = self._tree[id]._children
+
+        for _id in children_id:
+            for name, __id in self._names.items():
+                if _id == __id:
+                    result.append(name)
+                    break
+
+        return result
+
+    def get_parent(self, name):
+        result = ""
+        id = self._names[name]
+        parent_id = self._tree[id]._parent
+
+        for name, _id in self._names.items():
+            if _id == parent_id:
+                result = name
+                break
+
+        return result
 
     def __str__(self):
         s = ""
         stack = []
         stack.append(('0',0))
-        
+
         while stack :
             (nid, level) = stack.pop()
             s += "|"
@@ -92,7 +117,7 @@ if __name__== "__main__":
     ht = HierarchyTree()
     ht._build('/Users/efekarakus/Work/NewsNet/newsnet/data/hierarchy_data/area.hier')
     print str(ht)
-    
+
     print "slicing"
     print ht.is_slice('DB', '2')
     print ht.is_slice('DB', '3')
