@@ -39,9 +39,9 @@ class HierarchyTree:
 
                 if not cpid in self._tree:
                     self._tree[cpid] = self.TreeNode(cpid, None, None)
-                else:
-                    parent = self._tree[cpid]
-                    parent._children.append(cid)
+
+                parent = self._tree[cpid]
+                parent._children.append(cid)
 
                 # insert into names
                 self._names[cname] = cid
