@@ -4,9 +4,10 @@ from forest import Forest
 import sys
 import time
 import random
+import logging
 
 SHELL_PROMPT = "Command: "
-CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "display", \
+CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
     "search_node", "print_network_statistics", "rank"]
 
@@ -22,6 +23,11 @@ class Manager:
         self._deleted_nodes = set()
 
         self.build_subgraphs()
+        self.set_logging()
+
+    def set_logging(self):
+        logging.basicConfig(filename="result.log", format='%(asctime)-15s %(message)s')
+        self.logger = logging.getLogger()
 
     def build_subgraphs(self):
         for node in self.get_nodes():
@@ -60,8 +66,8 @@ class Manager:
             return
 
         score = self.compute_similarity(id1, id2)
-        print "Time taken for similarity search: %f" % (time.time() - start)
-        print "Score: ", score
+        self.logger.warning("Time taken for similarity search: %f" % (time.time() - start))
+        self.logger.warning("Score: ", score)
 
     def drill_down(self, _):
         [name, val] = _
@@ -69,12 +75,11 @@ class Manager:
         start = time.time()
 
         for node in self.get_nodes():
-            # print name, val, node.get_category(name)
             category = node.get_category(name)
             if category and not self._forest.is_member(name, val, category):
                 self._deleted_nodes.add(node.get_id())
 
-        print "Time taken for drill-down: %f" % (time.time() - start)
+        self.logger.warning("Time taken for drill-down: %f" % (time.time() - start))
         self._version += 1
 
     def roll_up(self, _):
@@ -90,7 +95,7 @@ class Manager:
                 if node_id in self._deleted_nodes:
                     self._deleted_nodes.remove(node_id)
 
-        print "Time taken for roll-up: %f" % (time.time() - start)
+        self.logger.warning("Time taken for roll-up: %f" % (time.time() - start))
         self._version += 1
 
     def restore(self, _):
@@ -106,10 +111,10 @@ class Manager:
 
     def print_nodes(self, _):
         for node in self.get_nodes():
-            print node
+            self.logger.warning(node)
 
     def print_num_nodes(self, _):
-        print "Number of nodes: %d " % (len(self.get_nodes()))
+        self.logger.warning("Number of nodes: %d " % (len(self.get_nodes())))
 
     def print_neighbors(self, _):
         node_id = line.split()[1]
@@ -158,8 +163,8 @@ class Manager:
             for node in self.get_nodes():
                 degrees.append(len(self.get_neighbors(node)))
 
-            print "- Degree of node avg: %d stddev: %f" % \
-                (float(sum(degrees))/len(degrees), stddev(degrees))
+            self.logger.warning("- Degree of node avg: %d stddev: %f" % \
+                (float(sum(degrees))/len(degrees), stddev(degrees)))
 
         def print_clustering_coeff():
             clustering_coeff = []
@@ -178,8 +183,8 @@ class Manager:
 
                 clustering_coeff.append(float(count)/num_neighbors)
 
-            print "- Clustering coefficient avg: %d stddev: %f" % \
-                (float(sum(clustering_coeff))/len(clustering_coeff), stddev(clustering_coeff))
+            self.logger.warning("- Clustering coefficient avg: %d stddev: %f" % \
+                (float(sum(clustering_coeff))/len(clustering_coeff), stddev(clustering_coeff)))
 
         print_degree()
         # print_clustering_coeff()
