@@ -13,12 +13,12 @@ nodes:
 relations:
     relation: ../../data/nyt2013_ready/relation.txt
 hierarchies:
-    person: ../../data/nyt2013_ready/pertype.hier
-    organization: ../../data/nyt2013_ready/orgtype.hier
-    location: ../../data/nyt2013_ready/lochier.hier
-    topic: ../../data/nyt2013_ready/topicHier.hier
+    pertype: ../../data/nyt2013_ready/pertype.hier
+    orgtype: ../../data/nyt2013_ready/orgtype.hier
+    loctype: ../../data/nyt2013_ready/lochier.hier
+    topictype: ../../data/nyt2013_ready/topicHier.hier
 maps:
     person_pertype: ../../data/nyt2013_ready/pertype.map
     organization_orgtype: ../../data/nyt2013_ready/orgtype.map
-    location_lochier: ../../data/nyt2013_ready/lochier.map
-    topic_topichier: ../../data/nyt2013_ready/topicHier.map
+    location_loctype: ../../data/nyt2013_ready/lochier.map
+    topic_topictype: ../../data/nyt2013_ready/topicHier.map
