@@ -25,7 +25,7 @@ class HierarchyTree:
             for line in f:
                 vals = line.split('\t')
                 cid = vals[0].strip()
-                cpid = vals[1]
+                cpid = vals[1].strip()
                 cname = vals[2].strip()
 
                 if not cid in self._tree:
