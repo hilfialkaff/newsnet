@@ -1,8 +1,40 @@
 \section{Implementation}
 \label{sec:impl}
 
-When \h first runs, it first reads user-specified files that describe
-the nodes and the links in the heterogeneous information network.
-Optionally, the user could also specify another set of files that
-describe the hierarchy of types in the network so that users could
-perform drill-down or roll-up OLAP operations on the network.
+When \h first runs, it first reads user-specified files that describe the nodes
+and the links in the heterogeneous information network.  Optionally, the user
+could also specify another set of files that describe the hierarchy of types in
+the network so that users could perform drill-down or roll-up OLAP operations
+on the network.
+
+Then, \h builds the graph and \hTable, as discussed in
+Section~\ref{sec:hier_forest}.  After these two data structures have been
+built, the user will be presented with an interactive console. There are 7 key
+operations that the user could execute in the console:
+
+\begin{itemize}
+
+    \item \textit{similarity(node1, node2)}: Executes similarity search between
+    node1 and node2.
+
+    \item \textit{drill-down(categoryName, categoryValue)}: Executes drill-down
+    OLAP operation on the dataset on user specified hierarchy name and value.
+
+    \item \textit{roll-up(categoryName, categoryValue)}: Executes roll-up OLAP
+    operation on the dataset on user specified hierarchy name and value.
+
+    \item \textit{add-constraint(type, id)}: Add a constraint on the meta paths
+    used in the similarity measures as discussed in
+    Section~\ref{sec:user_constraint}.
+
+    \item \textit{delete-constraint(type, id)}: Delete a constraint that the
+    user previously added.
+
+    \item \textit{print-meta-paths(node1, node2)}: Display the meta-paths used
+    to compute the similarity score between node1 and node2.
+
+    \item \textit{print-network-statistics()}: Display the network statistics
+    (i.e., degree distribution, clustering coefficient and average path length)
+    of the graph that the user is currently working with.
+
+\end{itemize}

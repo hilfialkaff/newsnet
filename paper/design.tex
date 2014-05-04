@@ -46,7 +46,7 @@ network schema $\mathcal{T_G} = \mathcal{(A, R)}$, and is denoted in the form
 of $\mathcal{A}_1 \xrightarrow{R_1} \mathcal{A}_2 \xrightarrow{R_2} \cdots
 \xrightarrow{R_l} \mathcal{A}_{l + 1}$ which defines a composite relation
 $\mathcal{R} = \mathcal{R}_1 \circ \mathcal{R}_2 \circ \cdots \circ
-\mathcal{R}_l$ where $\circ$ denotes the composition operator on relations. \newline
+\mathcal{R}_l$ where $\circ$ denotes the composition operator on relations.
 \end{Def}
 
 Although multiple similarities measure have been previously explored such as
@@ -57,21 +57,17 @@ an early PhD student that has published a few papers, the above measures
 will yield professors who happen to co-author with this particular student
 although what we desire are other PhD students. This has become the other
 motivation for PathSim. Using the concept of meta path above, Path-Sim
-defines the relationship between two entities as follow: \newline
+defines the relationship between two entities as follow:
 
 \begin{Def}
 \label{path-sim}
-\textbf{PathSim: A Meta path-based similarity measure}. Given a symmetric
+PathSim: A meta path based similarity measure. Given a symmetric
 meta path $\mathcal{P}$, PathSim between two vertices of the same type
 x and y is:
 
-\begin{align*}
-s(x,y)=\frac{2*|\{p_{x \rightsquigarrow x}:p_{x \rightsquigarrow y}\}|\in\mathcal{P}}
+\paragraph{}$s(x,y)=\frac{2*|\{p_{x \rightsquigarrow x}:p_{x \rightsquigarrow y}\}|\in\mathcal{P}}
 {|\{p_{x \rightsquigarrow x}:p_{x \rightsquigarrow x}\}|\in\mathcal{P} +
-|\{p_{y \rightsquigarrow y}:p_{y \rightsquigarrow y}\}|\in\mathcal{P}}
-\end{align*}
-
-where $p_{a \rightsquigarrow b}$ is the meta paths between $a$ and $b$. \newline
+|\{p_{y \rightsquigarrow y}:p_{y \rightsquigarrow y}\}|\in\mathcal{P}}$, where $p_{a \rightsquigarrow b}$ is the meta paths between $a$ and $b$.
 \end{Def}
 
 Intuitively, this indicates that if $x$ is popular, but not $y$, the number of
@@ -119,6 +115,7 @@ database will still be indexed by $(\mathcal{N}_1, \mathcal{N}_2)$ to allow
 fast retrieval.
 
 \subsubsection{Hierarchy Forest}
+\label{sec:hier_forest}
 
 The heterogeneous network contains hierarchies for certain entities. For example,
 a location hierarchy could look like:
@@ -148,6 +145,7 @@ All the operations described above take $O(1)$ run-time due to the HashTable, ex
 hierarchy tree.
 
 \subsubsection{User-Specified Constraints}
+\label{sec:user_constraint}
 
 Thirdly, we also allow user to specify constraints on the type of meta paths
 result that are used for computing the similarity score. There are two types of
@@ -179,7 +177,7 @@ enforced as we add a node into our candidate set
                 \State curPath $\gets$ q.dequeue()
                 \State lastNode $\gets$ curPath.lastNode
                 \For {n $\leftarrow$ lastNode.neighbors}
-                    \If{checkConstraint(n, c, "mustNotHave")}
+                    \If{check(n, c, "mustNotHave")}
                         \State continue
                     \ElsIf{n in curPath}
                         \State continue
@@ -189,7 +187,7 @@ enforced as we add a node into our candidate set
                     \State newPath $\gets$ curPath.append(n)
 
                     \If{n $==$ dst}
-                        \If{checkConstraint(n, c, "mustHave")}
+                        \If{check(n, c, "mustHave")}
                             \State paths.add(newPath)
                         \EndIf
                     \Else
@@ -204,10 +202,10 @@ enforced as we add a node into our candidate set
 \end{algorithm}
 
 Algorithm~\ref{alg:1} shows the algorithm that we use to discover the top-k
-paths with user-specified constraints. The first $checkConstraint$ function
+paths with user-specified constraints. The first $check$ function
 is called every time a new partial path is explored. It ensures that nodes
 that user \textit{does not want} to be added are being pruned from the search
-space to save computation time. The second $checkConstraint$ function
+space to save computation time. The second $check$ function
 is called only when a full candidate path between the source and destination
 is discovered. This ensures that all the nodes that the user \textit{wants}
 exist in the path.

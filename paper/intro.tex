@@ -36,18 +36,17 @@ search query should return. For instance, a user might be interested in a simila
 search between two objects that does not go into a specific node in the graph.
 
 In this paper, we propose \h, which is built on top of PathSim, that addresses
-the aforementioned shortcomings of PathSim. We address the first challenge
-by building a hash-table, \mTable, whose key is a pair of node while the value is
-the meta-paths between the pair. At first, the hash-table is empty. But as
-user queries for similarity measures on two nodes in the graph, the meta-paths
-found during the computation will be cached in the hash-table. This
-allows for faster indexing if the user performs the same query. For the
-second challenge, we address it by (TALK ABOUT FOREST.PY). Finally,
-the third challenge is addressed by keeping track of constraints that
-the user specifies in a hash-table, \cTable. \cTable will be
-checked whenever we found a candidate for meta-path between two objects
-to ensure that none of the constraints that the user specified is
-violated.
+the aforementioned shortcomings of PathSim. We address the first challenge by
+building a hash-table, \mTable, whose key is a pair of node while the value is
+the meta-paths between the pair. At first, the hash-table is empty. But as user
+queries for similarity measures on two nodes in the graph, the meta-paths found
+during the computation will be cached in the hash-table. This allows for faster
+indexing if the user performs the same query. For the second challenge, we
+address it by building a forest of hierarchical trees. Finally, the third
+challenge is addressed by keeping track of constraints that the user specifies
+in a hash-table, \cTable. \cTable will be checked whenever we found a candidate
+for meta-path between two objects to ensure that none of the constraints that
+the user specified is violated.
 
 \subsection{Paper Outline}
 
