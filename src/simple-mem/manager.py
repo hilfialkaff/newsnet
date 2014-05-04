@@ -5,6 +5,7 @@ import sys
 import time
 import random
 import logging
+import random
 
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "rank", \
@@ -243,8 +244,13 @@ class Manager:
             self._logger.warning("- Clustering coefficient avg: %d stddev: %f" % \
                 (float(sum(clustering_coeff))/len(clustering_coeff), stddev(clustering_coeff)))
 
-        print_degree()
+        def print_avg_path_length():
+            avg = self.get_avg_path_length()
+            self._logger.warning("- Avg Path length: " + str(avg))
+            print str(avg)
+        #print_degree()
         # print_clustering_coeff()
+        print_avg_path_length()
 
     def print_children(self, _):
         for category, name in self._current_level.items():
@@ -481,3 +487,61 @@ class Manager:
 
     def get_nodes(self):
         return [n for n in self._graph.get_nodes() if n.get_id() not in self._deleted_nodes]
+
+    def get_avg_path_length(self):
+        def shortest_path(start, end):
+            label = {}
+            parent = {}
+            for node in self._graph.get_nodes():
+                label[node.get_id()] = 'UNEXPLORED'
+
+            queue = []
+            queue.append(start)
+            found = False
+
+            while (queue and not found):
+                node = queue.pop(0)
+                label[node.get_id()] = 'VISITED'
+                neighbors = self.get_neighbors(node)
+
+                for neighbor in neighbors:
+                    if found: break
+
+                    if label[neighbor.get_id()] == 'UNEXPLORED':
+                        label[neighbor.get_id()] = 'DISCOVERY'
+                        parent[neighbor.get_id()] = node.get_id()
+                        queue.append(neighbor)
+
+                        if neighbor.get_id() == end.get_id():
+                            found = True
+                # endfor
+            # endwhile
+            if not found:
+                return None
+
+            distance = 0
+            cur = end.get_id()
+            while ( cur != start.get_id() ):
+                distance += 1
+                cur  = parent[cur]
+            return distance
+        # end shortest path
+
+        distances = 0
+        n = 0
+
+        sample = random.sample(self._graph.get_nodes(), 1000)
+        for start in sample:
+            for end in sample:
+                if start.get_id() == end.get_id(): continue
+
+                path = shortest_path(start, end)
+                print start, end, path
+                if path:
+                    distances += path
+                    n += 1
+            # endfor end
+        # endfor start
+        return float(distances)/float(n)
+
+        
