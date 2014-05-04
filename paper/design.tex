@@ -84,3 +84,32 @@ value.
 \subsection{hPathSim}
 
 There are three main improvements that we made to the PathSim framework.
+
+\subsection{Hierarchy Forest}
+
+The heterogeneous network contains hierarchies for certain entities. For example,
+a location hierarchy could look like:
+
+\begin{align*}
+Urbana \leadsto USA \leadsto North America \leadsto root
+\end{align*}
+
+\h builds a forest of hierarchical trees, the trees are using HashTables in their core to 
+allow for fast lookup of a node in the tree. The roll-up and drill-down operations
+on the tree are implemented just by using a depth-first search (DFS).
+
+The forest provides 5 key operations for each of the trees:
+\begin{itemize}
+    \item \textit{is\_member(nodeTitle, queryID)}: Applies an iterative DFS to check if 
+    the node with id \textit{queryID} is under the subtree of \textit{nodeTitle}.
+    \item \textit{is\_slice(nodeTitle, queryID)}: check whether the node with $nodeTitle$
+    has the id $queryID$.
+    \item \textit{get\_categories()}: return the tree titles in the forest.
+    \item \textit{get\_children(nodeTitle)}: get all immediate children under the node 
+    $nodeTitle$.
+    \item \textit{get\_parent(nodeTitle)}: get the parent of the node $nodeTitle$.
+\end{itemize}
+
+All the operations described above take $O(1)$ run-time due to the HashTable, except for 
+\textit{is\_member} which can take $O(N)$ where $N$ is the number of nodes under the specified 
+hierarchy tree.
