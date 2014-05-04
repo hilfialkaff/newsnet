@@ -13,6 +13,7 @@
 \usepackage{setspace}
 \usepackage{epsfig}  % for figures
 \usepackage{amsmath}  % for math spacing \usepackage{lscape}  % Useful for wide tables or figures.
+\usepackage{amssymb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{color}
@@ -31,17 +32,22 @@
 
 \date{}
 
-\title{\Large \bf User-Guided Meta-Path Based Framework for Heterogeneous Networks}
+\title{\Large \bf User-Guided Meta-Path Based Framework in Heterogeneous Networks}
 \author{
     {\rm Hilfi Madari Alkaff, Efe Karakus}\\
     \{alkaff2, karakus1\}@illinois.edu
 }
+
+\newtheorem{Def}{Definition}
+\newcommand{\h}{\textsc{hPathSim}\xspace}
+\newcommand{\constraint}{\textsc{Constraint-Table}\xspace}
 
 \maketitle
 \thispagestyle{empty}
 
 \input{abstract}
 \input{intro}
+\input{impl}
 \input{design}
 \input{eval}
 \input{rel-work}

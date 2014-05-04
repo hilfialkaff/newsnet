@@ -1,3 +1,59 @@
 \section{Introduction}
 \label{sec:introduction}
 
+In the current era of big data, an enormous amount of information is being
+generated in real-time. It is important that we are able to navigate these
+massive datasets to understand what is currently going on. We would like to
+specifically focus on news data for a number of reasons. Firstly, there is an
+abundance of available news data that we could analyze. Secondly, it is
+possible to categorize news data hierarchically. An example of such hierarchy
+is the country, followed by state, district, and so on. We should be able to
+seamlessly navigate between different level in the hierarchy to retrieve the
+relevant information. Last but not least we choose news data because it allows
+us to be more aware of the current events that are happening around us. As
+such, we would like a platform that allow us to answer questions such as 'Who
+are the key politicians for healthcare reforms?', 'How did the opinion of
+Barack Obama change over time for education?' and so on.
+
+Similarity search has been extensively studied in the past. At first, it was
+applied to only categorical and numerical data types in relational data. Then,
+there have been works that tries to leverage link information in networks. Most
+of these studies focus on homogeneous or bipartite
+networks~\cite{page1999pagerank, jeh2002simrank, xu2007scan}. However,
+these similarity measures disregard the subtlety of different types among objects and links
+which are present in heterogeneous information network. More recently, a
+meta-path based similarity framework, PathSim~\cite{sun2011pathsim}, has been proposed
+that takes into account different linkage in the network.
+
+However, there are several shortcomings in the PathSim design.
+Firstly, the operations to compute the meta-path are computationally expensive
+and consume a lot of memories since it is achieved through matrix multiplications.
+Secondly, it does not allow users to perform any OLAP operations in the dataset.
+This is important because a user might be interested in the similarity of two
+objects under a specified context only. Thirdly, the original PathSim framework
+also does not allow user to provide hints in the type of meta-paths that a similarity
+search query should return. For instance, a user might be interested in a similarity
+search between two objects that does not go into a specific node in the graph.
+
+In this paper, we propose \h, which is built on top of PathSim, that addresses
+the aforementioned shortcomings of PathSim. We address the first challenge
+by building a hash-table whose key is a pair of node while the value is
+the meta-paths between the node. At first, the hash-table is empty. But as
+user queries for similarity measures on two nodes in the graph, the meta-paths
+that are found during the computation will be cached in the hash-table. This
+allows for faster indexing if the user performs the same query. For the
+second challenge, we address it by (TALK ABOUT FOREST.PY). Finally,
+the third challenge is addressed by keeping track of constraints that
+the user specifies in a hash-table, \constraint. \constraint will be
+checked whenever we found a candidate for meta-path between two objects
+to ensure that none of the constraints that the user specified is
+violated.
+
+\subsection{Paper Outline}
+
+This paper is structured as follows. We begin with the design of our framework
+(Section~\ref{sec:design}) followed by our implementation (Section~\ref{sec:impl}). We then show our the performance of our framework
+based on the DBLP and NYTimes dataset (Section~\ref{sec:eval}). Following that,
+we will then survey related works in the area (Section~\ref{sec:rel-work}).
+Finally, we discuss some extensions that could further be made to our framework
+and conclude (Section~\ref{sec:conc}).
