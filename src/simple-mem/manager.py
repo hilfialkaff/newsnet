@@ -9,7 +9,8 @@ import logging
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "rank", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
-    "search_node", "print_network_statistics", "print_children", "print_parent", "print_node"]
+    "search_node", "print_network_statistics", "print_children", "print_parent", "print_node",
+    "print_constraints", "add_constraint", "delete_constraint"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
@@ -22,9 +23,19 @@ class Manager:
         self._version = 0
         self._deleted_nodes = set()
         self._current_level = dict([(category, "root") for category in self._forest.get_categories()])
+        self._constraints = {} # {include, not_include}
 
-        self.build_subgraphs()
+        self.setup_constraints()
         self.set_logging()
+        self.build_subgraphs()
+
+    def setup_constraints(self):
+        self._constraints["include"] = {}
+        self._constraints["include"]["id"] = []
+        self._constraints["include"]["type"] = []
+        self._constraints["not_include"] = {}
+        self._constraints["not_include"]["id"] = []
+        self._constraints["not_include"]["type"] = []
 
     def set_logging(self):
         logging.basicConfig(filename="result.log", format='%(asctime)-15s %(message)s')
@@ -83,8 +94,6 @@ class Manager:
                 self._deleted_nodes.add(node.get_id())
 
         self._logger.warning("Time taken for drill-down: %f" % (time.time() - start))
-        # self._logger.warning("deleted nodes: %d" % (len(self._deleted_nodes)))
-        # self._logger.warning("deleted nodes: %s" % (self._deleted_nodes))
         self._current_level[name] = val
         self._version += 1
 
@@ -103,8 +112,6 @@ class Manager:
                     self._deleted_nodes.remove(node_id)
 
         self._logger.warning("Time taken for roll-up: %f" % (time.time() - start))
-        # self._logger.warning("deleted nodes: %d" % (len(self._deleted_nodes)))
-        # self._logger.warning("deleted nodes: %s" % (self._deleted_nodes))
         self._current_level[name] = val
         self._version += 1
 
@@ -217,6 +224,45 @@ class Manager:
             print "- " + self._forest.get_parent(category, name)
             print ""
 
+    def print_constraints(self, _):
+        print self._constraints
+
+    def add_constraint(self, _):
+        if _[1] == "id":
+            [is_include, is_specific, id] = _
+            constraint = id
+        elif _[1] == "type":
+            [is_include, is_specific, type, val] = _
+            constraint = (type, val)
+        else:
+            print "Too many arguments"
+            return
+
+        if constraint in self._constraints[is_include][is_specific]:
+            print "constraint %s has already been added" % (constraint)
+            return
+
+        self._constraints[is_include][is_specific].append(constraint)
+        self._version += 1
+
+    def delete_constraint(self, _):
+        if _[1] == "id":
+            [is_include, is_specific, id] = _
+            constraint = id
+        elif _[1] == "type":
+            [is_include, is_specific, type, val] = _
+            constraint = (type, val)
+        else:
+            print "Too many arguments"
+            return
+
+        if constraint not in self._constraints[is_include][is_specific]:
+            print "constraint %s does not exist" % (constraint)
+            return
+
+        self._constraints[is_include][is_specific].remove(constraint)
+        self._version += 1
+
     def test_nyt(self):
         self.print_network_statistics([])
         nodes = [node for node in self.get_nodes() if node.get_type() == "article"]
@@ -275,24 +321,44 @@ class Manager:
         self.test_nyt()
         # self.test_dblp()
 
-    def is_path_valid(self, path):
-        d = {}
-        ret = True
+    def check_constraints(self, path):
+        for id in self._constraints["include"]["id"]:
+            is_exist = False
+            for node in path:
+                if node.get_id() == id:
+                    is_exist = True
 
-        for node in path:
-            node_type = node.get_type()
+            if not is_exist:
+                return False
 
-            if node_type in d:
-                d[node_type] += 1
+        for type, val in self._constraints["include"]["type"]:
+            is_exist = False
+            for node in path:
+                if node.get_category(type) == val:
+                    is_exist = True
 
-                # Only pass a node type twice at most
-                if d[node_type] > 2:
-                    ret = False
-                    break
-            else:
-                d[node_type] = 1
+            if not is_exist:
+                return False
 
-        return ret
+        for id in self._constraints["not_include"]["id"]:
+            is_exist = False
+            for node in path:
+                if node.get_id() == id:
+                    is_exist = True
+
+            if is_exist:
+                return False
+
+        for type, val in self._constraints["not_include"]["type"]:
+            is_exist = False
+            for node in path:
+                if node.get_category(type) == val:
+                    is_exist = True
+
+            if is_exist:
+                return False
+
+        return True
 
     def find_path(self, src, dst):
         queue = deque()
@@ -315,10 +381,9 @@ class Manager:
 
                 new_path = cur_path[:] + [neighbor]
 
-                # if not self.is_path_valid(new_path):
-                #     continue
-
                 if neighbor == dst:
+                    if not self.check_constraints(new_path):
+                        continue
                     paths.append(new_path)
                 elif neighbor in cur_path:
                     continue
