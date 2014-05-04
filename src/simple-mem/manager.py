@@ -9,7 +9,8 @@ import logging
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "rank", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
-    "search_node", "print_network_statistics", "print_children", "print_parent", "print_node"]
+    "search_node", "print_network_statistics", "print_children", "print_parent", "print_node", \
+    "help"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
@@ -41,8 +42,11 @@ class Manager:
                 self._subgraph[name][val].append(node.get_id())
 
     def shell(self):
+        print "type 'help' to see a list of commands"
         while True:
             line = raw_input(SHELL_PROMPT)
+            if line.strip() == "":
+                continue
             cmd = line.split()[0]
 
             if cmd not in CMDS:
@@ -54,7 +58,15 @@ class Manager:
     def quit(self, line):
         sys.exit(0)
 
+    def help(self, _):
+        for cmd in CMDS:
+            print cmd
+
     def similarity(self, _):
+        if not len(_) == 2:
+            print "Wrong arguments for <similarity>: " + str(_)
+            print "Should be: <similarity> <id1> <id2>"
+            return
         [id1, id2] = _
 
         start = time.time()
@@ -73,6 +85,10 @@ class Manager:
         self._logger.warning("Score: %s " %(score))
 
     def drill_down(self, _):
+        if not len(_) == 2:
+            print "Wrong arguments for <drill_down>: " + str(_)
+            print "Should be: <drill_down> <name> <val>"
+            return
         [name, val] = _
 
         start = time.time()
@@ -89,6 +105,10 @@ class Manager:
         self._version += 1
 
     def roll_up(self, _):
+        if not len(_) == 2:
+            print "Wrong arguments for <roll_up>: " + str(_)
+            print "Should be: <roll_up> <name> <val>"
+            return
         [name, val] = _
 
         start = time.time()
@@ -120,6 +140,10 @@ class Manager:
         self._graph = self._orig_graph.copy()
 
     def print_node(self, _):
+        if not len(_) == 1:
+            print "Wrong arguments for <print_node>: " + str(_)
+            print "Should be: <print_node> <node_id>"
+            return
         [node_id] = _
 
         print self._graph.get_node(node_id)
@@ -132,7 +156,11 @@ class Manager:
         print "Number of nodes: %d " % (len(self.get_nodes()))
 
     def print_neighbors(self, _):
-        node_id = line.split()[1]
+        if not len(_) == 1:
+            print "Wrong arguments for <print_neighbors>: " + str(_)
+            print "Should be: <print_neighbors> <node_id>"
+            return
+        [node_id] = _
         node = self._graph.get_node(node_id)
 
         if node is None:
@@ -143,6 +171,10 @@ class Manager:
                 print "--> %s" % (neighbor)
 
     def print_meta_paths(self, _):
+        if not len(_) == 2:
+            print "Wrong arguments for <print_meta_paths>: " + str(_)
+            print "Should be: <print_meta_paths> <node_id1> <node_id2>"
+            return
         [id1, id2] = _
         node1 = self._graph.get_node(id1)
         node2 = self._graph.get_node(id2)
@@ -157,6 +189,10 @@ class Manager:
         node1.print_meta_paths(id2)
 
     def search_node(self, _):
+        if not len(_) == 2:
+            print "Wrong arguments for <search_node>: " + str(_)
+            print "Should be: <search_node> <node_id>"
+            return
         node_id = _[0]
         node = self._graph.get_node(node_id)
 
