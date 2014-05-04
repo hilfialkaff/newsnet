@@ -86,11 +86,17 @@ value.
 There are three main improvements that we made to the PathSim framework.
 Firstly, even with the pruning algorithm that they introduce in the paper,
 the original PathSim framework still requires expensive matrix computations
-that are not feasible in an online setting.
+that are not feasible in an online setting. We introduce a better storage
+mechanism, \mTable, that allows faster materialization of the meta paths. Secondly,
+we built our own tree data structure, \hTable, to allow us to perform
+efficient OLAP operations on the dataset. Thirdly, we show how we are able
+to support user defined constraints in our dataset.
 
 % Depending on the meta path that it wants to materialize
 
-In \h, we build a hash-table in which the key is a pair of node,
+\subsubsection{Storage Optimization}
+
+In \h, we introduce a hash-table in which the key is a pair of node,
 $(\mathcal{N}_1, \mathcal{N}_2)$ while the value is a set of meta paths between
 the pair.  At first, the hash-table is empty. But as user queries for
 similarity measures on two vertices in the graph, meta-paths found during the
@@ -111,6 +117,37 @@ see if meta paths between two vertices have been computed previously. If so, the
 meta paths will be swapped back to the cache again. Similar to our cache, the
 database will still be indexed by $(\mathcal{N}_1, \mathcal{N}_2)$ to allow
 fast retrieval.
+
+\subsubsection{Hierarchy Forest}
+
+The heterogeneous network contains hierarchies for certain entities. For example,
+a location hierarchy could look like:
+
+\begin{align*}
+Urbana \leadsto USA \leadsto North America \leadsto root
+\end{align*}
+
+\h builds a forest of hierarchical trees, the trees are using HashTables in their core to
+allow for fast lookup of a node in the tree. The roll-up and drill-down operations
+on the tree are implemented just by using a depth-first search (DFS).
+
+The forest provides 5 key operations for each of the trees:
+\begin{itemize}
+    \item \textit{is\_member(nodeTitle, queryID)}: Applies an iterative DFS to check if
+    the node with id \textit{queryID} is under the subtree of \textit{nodeTitle}.
+    \item \textit{is\_slice(nodeTitle, queryID)}: check whether the node with $nodeTitle$
+    has the id $queryID$.
+    \item \textit{get\_categories()}: return the tree titles in the forest.
+    \item \textit{get\_children(nodeTitle)}: get all immediate children under the node
+    $nodeTitle$.
+    \item \textit{get\_parent(nodeTitle)}: get the parent of the node $nodeTitle$.
+\end{itemize}
+
+All the operations described above take $O(1)$ run-time due to the HashTable, except for
+\textit{is\_member} which can take $O(N)$ where $N$ is the number of nodes under the specified
+hierarchy tree.
+
+\subsubsection{User-Specified Constraints}
 
 Thirdly, we also allow user to specify constraints on the type of meta paths
 result that are used for computing the similarity score. There are two types of

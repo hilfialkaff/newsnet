@@ -1,3 +1,36 @@
 \section{Evaluation}
 \label{sec:eval}
 
+In this section, we begin by describing the datasets used in our experiments.
+Followed with statistics of the underlying network and we finish by showing
+the runtimes of the OLAP queries and Similarity Search operations on the datasets.
+
+\subsection{Data}
+
+We test \h on three different datasets.
+
+The DBLP dataset is a network of Authors, Papers, Citations, Venues, and 
+Terms. It is a heterogeneous network, however it does not contain any 
+hierarchical entities. The total size of the data is 1.1GB, the relationship
+between entities were as follow: Author$\leftrightarrow$Paper,
+Paper$\leftrightarrow$Term, and Paper$\leftrightarrow$Venue.
+
+The DBLP Hierarchical Dataset is similar to the previous one. Except, that now
+the relations are as follows: Paper$\leftrightarrow$Area, Author$\leftrightarrow$Area,
+Conf$\leftrightarrow$Area, Term$\leftrightarrow$Area. 
+Furthermore, Area and Conf entities form a hierarchy.
+This dataset is much more smaller than the previous one, only 7.9MB.
+
+Finally, the last dataset is from the New York Times. It represents a comprehensive
+dataset that is both heteregenous and also hierarchical. The network is 650MB, with
+entities: Article, Location, Organization, Person, Topic. Furthermore, each one of these
+entites except Article has its own hierarchy.
+
+\subsection {Network Statistics}
+
+% TODO
+
+\subsection {Experiments}
+
+% TODO
+
