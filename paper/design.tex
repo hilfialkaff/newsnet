@@ -10,7 +10,7 @@ support hints and OLAP operations from the user.
 
 PathSim is developed to compute
 similarity measures in a heterogeneous information network which are logical
-networks that involve multiple typed objects and multiple typed links denoting
+networks that involve multiple typed vertices and multiple typed links denoting
 different relations (e.g., bibliographic network, news articles).
 
 Figure~\ref{fig:relationship} shows an example heterogeneous information
@@ -26,7 +26,7 @@ different type of edges that exist (i.e., ''Writes``, ''Has``, ''Cited`` and
     \label{fig:relationship}
 \end{figure}
 
-PathSim strives to define similarity measures between objects in heterogeneous
+PathSim strives to define similarity measures between vertices in heterogeneous
 information network using structural information and to answer top-k similarity
 search queries efficiently. It accomplishes this by developing a novel meta
 path-based framework.
@@ -36,11 +36,11 @@ different connectivity paths. For instance, two authors can be connected via
 author-paper-author (i.e. co-authors) path or author-paper-venue-paper-author
 (i.e.  the authors submitted both of their papers to the same conferences)
 path. Intuitively, the different paths represent a different similarity
-semantics. More formally, as written in the paper, the meta-path can be
+semantics. More formally, as written in the paper, the meta path can be
 described as follows:
 
 \begin{Def}
-\label{meta-path}
+\label{meta path}
 \textbf{Meta path}. A meta path $\mathcal{P}$ is a path defined on the graph on
 network schema $\mathcal{T_G} = \mathcal{(A, R)}$, and is denoted in the form
 of $\mathcal{A}_1 \xrightarrow{R_1} \mathcal{A}_2 \xrightarrow{R_2} \cdots
@@ -56,13 +56,13 @@ For instance, if we would like to find out about authors that are similar to
 an early PhD student that has published a few papers, the above measures
 will yield professors who happen to co-author with this particular student
 although what we desire are other PhD students. This has become the other
-motivation for PathSim. Using the concept of meta-path above, Path-Sim
+motivation for PathSim. Using the concept of meta path above, Path-Sim
 defines the relationship between two entities as follow: \newline
 
 \begin{Def}
 \label{path-sim}
 \textbf{PathSim: A Meta path-based similarity measure}. Given a symmetric
-meta path $\mathcal{P}$, PathSim between two objects of the same type
+meta path $\mathcal{P}$, PathSim between two vertices of the same type
 x and y is:
 
 \begin{align*}
@@ -71,12 +71,12 @@ s(x,y)=\frac{2*|\{p_{x \rightsquigarrow x}:p_{x \rightsquigarrow y}\}|\in\mathca
 |\{p_{y \rightsquigarrow y}:p_{y \rightsquigarrow y}\}|\in\mathcal{P}}
 \end{align*}
 
-where $p_{a \rightsquigarrow b}$ is the meta-paths between $a$ and $b$. \newline
+where $p_{a \rightsquigarrow b}$ is the meta paths between $a$ and $b$. \newline
 \end{Def}
 
 Intuitively, this indicates that if $x$ is popular, but not $y$, the number of
-meta-paths between $x$ and itself will be much larger than the number of
-meta-paths between $x$ and $y$. Thus, when we are comparing a popular entity
+meta paths between $x$ and itself will be much larger than the number of
+meta paths between $x$ and $y$. Thus, when we are comparing a popular entity
 and an un-popular entity $s(x,y)$ will be low and vice versa. We need to have
 either both to be popular or un-popular so that $s(x,y)$ yield a considerable
 value.
@@ -84,3 +84,93 @@ value.
 \subsection{hPathSim}
 
 There are three main improvements that we made to the PathSim framework.
+Firstly, even with the pruning algorithm that they introduce in the paper,
+the original PathSim framework still requires expensive matrix computations
+that are not feasible in an online setting.
+
+% Depending on the meta path that it wants to materialize
+
+In \h, we build a hash-table in which the key is a pair of node,
+$(\mathcal{N}_1, \mathcal{N}_2)$ while the value is a set of meta paths between
+the pair.  At first, the hash-table is empty. But as user queries for
+similarity measures on two vertices in the graph, meta-paths found during the
+computation will be cached in the hash-table. This enables fast retrieval if
+the user issues the same queries in the future.
+
+However, as noted in the original PathSim paper, it is impossible to cache all
+of the possible meta-paths in an enormous graph. The author of the paper
+calculated the storage size requirement of all the possible length-4 meta paths
+in the DBLP data set is more than 40GB. Thus, we use an underlying database in
+our framework to regularly swap meta paths in the cache to the disk if we are
+using too much memory. We use Least Recently Used (LRU) policy to determine
+which meta paths that need to be swapped to the disk due to its simplicity and
+its effectiveness in ensuring that it works.
+
+The database is checked every time the user issues a similarity search query to
+see if meta paths between two vertices have been computed previously. If so, the
+meta paths will be swapped back to the cache again. Similar to our cache, the
+database will still be indexed by $(\mathcal{N}_1, \mathcal{N}_2)$ to allow
+fast retrieval.
+
+Thirdly, we also allow user to specify constraints on the type of meta paths
+result that are used for computing the similarity score. There are two types of
+constraints that the user could specify. Firstly, a user could specify that
+meta paths between two vertices must go through a certain node or any nodes
+with a particular category type. Conversely,  a user could also specify that
+meta paths between two vertices must not go through a certain node or any nodes
+with a particular category type. We choose these two types of constraints
+becaues we believe that they are intuitive for the users and will allow users
+to identify similarity between the two objects in a greater detail. These
+constraints are stored in a hash-table, \cTable.
+
+Similar to the original PathSim framework, the top-k paths used for the
+similarity search computation are discovered through a Breadth-First Search
+(BFS) algorithm. We based our algorithm off BFS due to its simplicity and guarantee to
+compute shortest path between two vertices. The first constraint is being
+enforced as we add a node into our candidate set
+
+\begin{algorithm}
+    \caption{Constrained BFS Algorithm to Find Meta-Paths}
+    \label{alg:1}
+    \begin{algorithmic}[1]
+        \Function{FindPath}{c, src, dst}
+            \State q $\gets$ Queue()
+            \State paths $\gets$ Set()
+            \State q.enqueue(Array(src))
+            \State
+            \While {not q.empty()}
+                \State curPath $\gets$ q.dequeue()
+                \State lastNode $\gets$ curPath.lastNode
+                \For {n $\leftarrow$ lastNode.neighbors}
+                    \If{checkConstraint(n, c, "mustNotHave")}
+                        \State continue
+                    \ElsIf{n in curPath}
+                        \State continue
+                    \EndIf
+                    \State
+
+                    \State newPath $\gets$ curPath.append(n)
+
+                    \If{n $==$ dst}
+                        \If{checkConstraint(n, c, "mustHave")}
+                            \State paths.add(newPath)
+                        \EndIf
+                    \Else
+                        \State q.enqueue(newPath)
+                    \EndIf
+                \EndFor
+            \EndWhile
+            \State
+            \State \Return{paths}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:1} shows the algorithm that we use to discover the top-k
+paths with user-specified constraints. The first $checkConstraint$ function
+is called every time a new partial path is explored. It ensures that nodes
+that user \textit{does not want} to be added are being pruned from the search
+space to save computation time. The second $checkConstraint$ function
+is called only when a full candidate path between the source and destination
+is discovered. This ensures that all the nodes that the user \textit{wants}
+exist in the path.

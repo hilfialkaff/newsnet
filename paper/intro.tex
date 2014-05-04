@@ -37,14 +37,14 @@ search between two objects that does not go into a specific node in the graph.
 
 In this paper, we propose \h, which is built on top of PathSim, that addresses
 the aforementioned shortcomings of PathSim. We address the first challenge
-by building a hash-table whose key is a pair of node while the value is
-the meta-paths between the node. At first, the hash-table is empty. But as
+by building a hash-table, \mTable, whose key is a pair of node while the value is
+the meta-paths between the pair. At first, the hash-table is empty. But as
 user queries for similarity measures on two nodes in the graph, the meta-paths
-that are found during the computation will be cached in the hash-table. This
+found during the computation will be cached in the hash-table. This
 allows for faster indexing if the user performs the same query. For the
 second challenge, we address it by (TALK ABOUT FOREST.PY). Finally,
 the third challenge is addressed by keeping track of constraints that
-the user specifies in a hash-table, \constraint. \constraint will be
+the user specifies in a hash-table, \cTable. \cTable will be
 checked whenever we found a candidate for meta-path between two objects
 to ensure that none of the constraints that the user specified is
 violated.
@@ -52,7 +52,8 @@ violated.
 \subsection{Paper Outline}
 
 This paper is structured as follows. We begin with the design of our framework
-(Section~\ref{sec:design}) followed by our implementation (Section~\ref{sec:impl}). We then show our the performance of our framework
+(Section~\ref{sec:design}) followed by our implementation
+(Section~\ref{sec:impl}). We then show our the performance of our framework
 based on the DBLP and NYTimes dataset (Section~\ref{sec:eval}). Following that,
 we will then survey related works in the area (Section~\ref{sec:rel-work}).
 Finally, we discuss some extensions that could further be made to our framework
