@@ -1,0 +1,54 @@
+\documentclass[letterpaper,twocolumn,10pt]{article}
+
+% Use draftpaper for notes and date markings on every page.  Useful when you
+%   have multiple copies floating around.
+% Use offcenter for the extra .5 inch on the left side. Needed with fullpage and fancy.
+% Use mixcasechap for compatibility with hyperref package, which does NOT like all caps default
+% Use edeposit for the adviser/committee on the title page.
+% Use tocnosub to suppress subsection and lower entries in the TOC.
+% PhD candidates use "proquest" for the proquest abstract.
+
+\makeatletter
+
+\usepackage{setspace}
+\usepackage{epsfig}  % for figures
+\usepackage{amsmath}  % for math spacing \usepackage{lscape}  % Useful for wide tables or figures.
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage[justification=raggedright]{caption}	% makes captions ragged right - thanks to Bryce Lobdell
+\usepackage[hyperfootnotes=false]{hyperref}
+
+\hypersetup {
+    citebordercolor=green,
+    bookmarks=true,
+    linktoc=all
+}
+
+\begin{document}
+
+\date{}
+
+\title{\Large \bf User-Guided Meta-Path Based Framework for Heterogeneous Networks}
+\author{
+    {\rm Hilfi Madari Alkaff, Efe Karakus}\\
+    \{alkaff2, karakus1\}@illinois.edu
+}
+
+\maketitle
+\thispagestyle{empty}
+
+\input{abstract}
+\input{intro}
+\input{design}
+\input{eval}
+\input{rel-work}
+\input{conc}
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
+\endinput
