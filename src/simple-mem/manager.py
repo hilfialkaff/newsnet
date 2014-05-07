@@ -10,8 +10,8 @@ import random
 SHELL_PROMPT = "Command: "
 CMDS = ["quit", "similarity", "drill_down", "roll_up", "restore", "rank", \
     "print_nodes", "print_num_nodes", "print_neighbors", "print_meta_paths", \
-    "search_node", "print_network_statistics", "print_children", "print_parent", "print_node",
-    "print_constraints", "add_constraint", "delete_constraint", "help"]
+    "print_compressed_meta_paths", "search_node", "print_network_statistics", "print_children", \
+    "print_parent", "print_node", "print_constraints", "add_constraint", "delete_constraint", "help"]
 
 class Manager:
     MAX_PATH_LENGTH = 5
@@ -194,6 +194,25 @@ class Manager:
             return
 
         node1.print_meta_paths(id2)
+
+    def print_compressed_meta_paths(self, _):
+        if not len(_) == 2:
+            print "Wrong arguments for <print_meta_paths>: " + str(_)
+            print "Should be: <print_meta_paths> <node_id1> <node_id2>"
+            return
+        [id1, id2] = _
+        node1 = self._graph.get_node(id1)
+        node2 = self._graph.get_node(id2)
+
+        if id1 in self._deleted_nodes or node1 is None:
+            print "Node %s doesn't exist" % (id1)
+            return
+        if id2 in self._deleted_nodes or node2 is None:
+            print "Node %s doesn't exist" % (id2)
+            return
+
+        node1.print_compressed_meta_paths(id2)
+
 
     def search_node(self, _):
         if not len(_) == 2:
@@ -530,7 +549,7 @@ class Manager:
         distances = 0
         n = 0
 
-        sample = random.sample(self._graph.get_nodes(), 1000)
+        sample = random.sample(self._graph.get_nodes(), 32)
         for start in sample:
             for end in sample:
                 if start.get_id() == end.get_id(): continue

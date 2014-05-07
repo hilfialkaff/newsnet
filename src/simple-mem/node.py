@@ -1,4 +1,5 @@
 from copy import deepcopy
+import yaml
 
 class Node:
     def __init__(self, type, id, *info):
@@ -96,7 +97,84 @@ class Node:
 
         paths = self._meta_paths[node_id][0]
         for i in range(len(paths)):
-            print "Path %d: %s" % (i, paths[i])
+            s = "Path %d: " % i
+            count = 0
+            size = len(paths[i])
+            for node in paths[i]:
+                if count == 0 or count == size-1:
+                    s += node._type + " -> "
+                else:
+                    s += node._type + "(" + str(node._info[0]) + ") -> "
+                count += 1
+            print s[:-4]
+
+    def print_compressed_meta_paths(self, node_id):
+        META_PATHS_NAME = 'user-metapaths.yml'
+        USER_METAPATHS = {}
+
+        # read user metapaths
+        metapaths = yaml.load(open(META_PATHS_NAME))
+        for name in metapaths:
+            s = ''
+            for val in metapaths[name]:
+                if val == '*':
+                    s += '* -> '
+                else:
+                    for key in val:
+                        s += key + '(' + val[key] + ') -> '
+            USER_METAPATHS[name] = s[:-4]
+        # endfor name
+
+        paths = self._meta_paths[node_id][0]
+        for i in range(len(paths)):
+            s = "Path %d: " % i
+            count = 0
+            size = len(paths[i])
+            for node in paths[i]:
+                if count == 0 or count == size-1:
+                    s += node._type + " -> "
+                else:
+                    s += node._type + "(" + str(node._info[0]) + ") -> "
+                count += 1
+            s = s[:-4]
+
+            for name in USER_METAPATHS:
+                s_tokens = s.split('->')
+                m_tokens = USER_METAPATHS[name].split('->')
+                
+                k = 0
+                indices_to_replace = []
+                while k < len(s_tokens):
+                    to_replace = True
+                    for j in range(len(m_tokens)):
+                        if (k+j) >= len(s_tokens):
+                            to_replace = False
+                            break
+                        s_token = s_tokens[k+j].strip()
+                        m_token = m_tokens[j].strip()
+
+                        if (m_token == '*'): continue
+                        elif (m_token == s_token): continue
+                        else:
+                            to_replace = False
+                            break
+                    # endfor
+                    
+                    if (to_replace):
+                        # replace
+                        indices_to_replace.append(k)
+                        k += len(m_tokens)
+                    else:
+                        k += 1
+                # endwhile
+
+                for index in indices_to_replace:
+                    for count in range(len(m_tokens)):
+                        s_tokens.pop(index)
+                    s_tokens.insert(index, ' ' + name + ' ')
+
+                print '->'.join(s_tokens) 
+        return
 
     def copy(self):
         new_node = Node(self.get_type(), self.get_id(), self.get_info())

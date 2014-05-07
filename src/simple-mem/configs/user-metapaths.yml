@@ -1,0 +1,8 @@
+cannes festival:
+    - *
+    - person
+        - Coen brothers
+    - *
+    - location
+        - France
+    - *
