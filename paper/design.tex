@@ -225,3 +225,26 @@ space to save computation time. The second $check$ function
 is called only when a full candidate path between the source and destination
 is discovered. This ensures that all the nodes that the user \textit{wants}
 exist in the path.
+
+\subsubsection{User-Defined Meta-Paths}
+\label{sec:user_metapaths}
+
+Finally, the meta-paths returned by PathSim might be hard to read.
+For example, the meta-path \textit{Article}$ \leadsto $\textit{Person: Coen Brothers}
+ $\leadsto$ \textit{Article} $\leadsto$ \textit{Location: France} $\leadsto$ \textit{Article} 
+is hard to understand at a glance. However, if the user realizes that this meta-path talks
+about the \textit{Cannes Film Festival} then he can replace that meta-path with this more 
+meaningful label.
+
+\h allows users to input a meta-path YAML file into the system.
+They can define meta-paths flexibly and give a label to it. An example, YAML file would look
+like this:
+\begin{verbatim}
+Cannes Film Festival:
+    - person: Coen brothers
+    - *
+    - location: France
+\end{verbatim}
+
+Would replace any paths within a meta-path of the format \textit{person: Coen Brothers} 
+$\leadsto$ * $\leadsto$ \textit{Location: France} with \textit{Cannes Film Festival}.
