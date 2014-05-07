@@ -1,7 +1,7 @@
 \section{Design}
 \label{sec:design}
 
-In this section, we begin with describing PathSim framework in greated detail.
+In this section, we begin with describing the original PathSim framework in a greater detail.
 Then, we will delve into the changes that we made to the PathSim framework to
 implement a more efficient similarity search framework while being able to
 support hints and OLAP operations from the user.
@@ -79,14 +79,26 @@ value.
 
 \subsection{hPathSim}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{./figs/nyt-dataset.png}
+    \caption{News Articles Network}
+    \label{fig:news}
+\end{figure}
+
 There are three main improvements that we made to the PathSim framework.
 Firstly, even with the pruning algorithm that they introduce in the paper,
 the original PathSim framework still requires expensive matrix computations
 that are not feasible in an online setting. We introduce a better storage
-mechanism, \mTable, that allows faster materialization of the meta paths. Secondly,
-we built our own tree data structure, \hTable, to allow us to perform
-efficient OLAP operations on the dataset. Thirdly, we show how we are able
-to support user defined constraints in our dataset.
+mechanism, \mTable, that allows faster materialization of the meta paths.
+
+Secondly, a heterogeneous information network typically contains a hierarchy
+for its entities' dimensions. Figure~ref{fig:news} shows one of the hierarchies
+that exists in the news network. In this case, this particular article's
+location dimension corresponds to "South Korea" which is a child of the "Asia"
+category. Thus, we built our own tree data structure, \hTable, to allow us to perform
+efficient OLAP operations on the dataset. Thirdly, we show how we are able to
+support user defined constraints in our dataset.
 
 % Depending on the meta path that it wants to materialize
 
@@ -117,16 +129,21 @@ fast retrieval.
 \subsubsection{Hierarchy Forest}
 \label{sec:hier_forest}
 
-The heterogeneous network contains hierarchies for certain entities. For example,
-a location hierarchy could look like:
+ An example of a location hierarchy could look like
+the following:
 
 \begin{align*}
 Urbana \leadsto USA \leadsto North America \leadsto root
 \end{align*}
 
-\h builds a forest of hierarchical trees, the trees are using HashTables in their core to
-allow for fast lookup of a node in the tree. The roll-up and drill-down operations
-on the tree are implemented just by using a depth-first search (DFS).
+Thus, a user might want to perform the similarity search under the specified
+constraint (e.g. Find me the most similar person to Obama in Africa). This
+problem has not been addressed in the original PathSim framework.
+
+To support OLAP operations,
+\h builds a forest of hierarchical trees, the trees use HashTables in their core to
+allow for fast node retrieval. The roll-up and drill-down operations
+on the tree are implemented by a depth-first search (DFS).
 
 The forest provides 5 key operations for each of the trees:
 \begin{itemize}
@@ -161,8 +178,7 @@ constraints are stored in a hash-table, \cTable.
 Similar to the original PathSim framework, the top-k paths used for the
 similarity search computation are discovered through a Breadth-First Search
 (BFS) algorithm. We based our algorithm off BFS due to its simplicity and guarantee to
-compute shortest path between two vertices. The first constraint is being
-enforced as we add a node into our candidate set
+compute shortest path between two vertices.
 
 \begin{algorithm}
     \caption{Constrained BFS Algorithm to Find Meta-Paths}
