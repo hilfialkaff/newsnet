@@ -1,4 +1,29 @@
 \section{Conclusion}
 \label{sec:conc}
 
-\h is open source and is available for download at \url{https://github.com/hilfialkaff/newsnet}.
+In this paper, we built \h, a similarity search framework, that improves on the
+PathSim. Firstly, even with the pruning algorithm that they introduce in the
+paper, the original PathSim framework still requires expensive matrix
+computations that are not feasible in an online setting. We introduce a better
+storage mechanism, \mTable, that allows faster materialization of the meta
+paths to support real-time user queries. Secondly, we built our own tree data
+structure, \hTable, to allow us to perform efficient OLAP operations on the
+dataset. Thirdly, we also allow users to specify constraints on the meta paths
+that are used in the similarity measures.
+
+\subsection{Future Work}
+
+For future work, we plan to implement better search algorithm than our current
+implementation. A metaheuristic optimization technique such as ant-colony
+optimization algorithm~\cite{dorigo1997ant} will be better at navigating the
+graph with the constraints that the user added.
+
+Another area of future will be to make our framework more scalable by running
+it in a distributed fashion. There have been previous works that implement
+distributed graph processing framework such as GraphLab~\cite{low2010graphlab}
+and Graphx~\cite{xin2013graphx}.
+
+\subsection{Open Source}
+
+\h is open source and is available for download at
+\url{https://github.com/hilfialkaff/newsnet}.
