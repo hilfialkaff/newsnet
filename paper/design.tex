@@ -126,8 +126,10 @@ meta paths will be swapped back to the cache again. Similar to our cache, the
 database will still be indexed by $(\mathcal{N}_1, \mathcal{N}_2)$ to allow
 fast retrieval.
 
-\subsubsection{Hierarchy Forest}
+\subsubsection{Supporting OLAP Operations}
 \label{sec:hier_forest}
+
+%\subsubsubsection{Hierarchy Forest}
 
  An example of a location hierarchy could look like
 the following:
@@ -160,6 +162,20 @@ The forest provides 5 key operations for each of the trees:
 All the operations described above take $O(1)$ run-time due to the HashTable, except for
 \textit{is\_member} which can take $O(N)$ where $N$ is the number of nodes under the specified
 hierarchy tree.
+
+%\subsubsubsection{OLAP Operations}
+When the user needs to drill-down in our dataset, he needs to specify a category name and a category
+value. The drill-down operation is implemented such that for each node, we check if its category is a member
+of the pair (category name, category value). The running time for drill-down is $O(N)$ where N is the number of
+vertices in the current graph.
+
+\ \\
+
+For the roll-up operation, the user will need to specify similar parameters.
+For this operation, we keep track of all the leaves vertices in the hierarchy trees, as well as the vertices
+that points to them. We add all these vertices together, and append them to the current graph.
+The running time is $O(hN)$ where $h$ is the size of the hierarchy tree.
+
 
 \subsubsection{User-Specified Constraints}
 \label{sec:user_constraint}
