@@ -1,70 +1,32 @@
-from node import Node
+import numpy as np
+import sys
 
-DATA_FOLDER = "../../data/hierarchy_data/"
-AUTHOR_FILE = "author.txt"
-PAPER_FILE = "paper.txt"
-TERM_FILE = "term.txt"
-CONF_FILE = "conf.txt"
-RELATION_FILE = "relation.txt"
-NEW_RELATION_FILE = "new_relation.txt"
+drill_down = []
+roll_up = []
+similarity = []
+fname = sys.argv[1]
 
-# Store graph of entities. Root will be connected to all entities
-root = Node("root", 0)
+def parse():
+    with open(fname) as f:
+        for line in f:
+            if "drill-down" in line:
+                drill_down.append(float(line.split()[-1]))
+            elif "roll-up" in line:
+                roll_up.append(float(line.split()[-1]))
+            elif "similarity" in line:
+                similarity.append(float(line.split()[-1]))
 
 def main():
-    print "Parsing author file..."
-    with open(DATA_FOLDER + AUTHOR_FILE) as f:
-        for line in f:
-            [id, name] = line.strip('\n').split('\t')
-            new_author = Node(Node.AUTHOR_TYPE, id, name)
+    parse()
 
-            root.add_neighbor(new_author)
+    if len(drill_down):
+        print "Avg drill down:", np.average(drill_down), np.std(drill_down)
 
-    print "Parsing venue file..."
-    with open(DATA_FOLDER + CONF_FILE) as f:
-        for line in f:
-            [id, name] = line.strip('\n').split('\t')
-            new_conf = Node(Node.CONF_TYPE, id, name)
+    if len(roll_up):
+        print "Avg roll_up:", np.average(roll_up), np.std(roll_up)
 
-            root.add_neighbor(new_conf)
-
-    print "Parsing paper file..."
-    with open(DATA_FOLDER + PAPER_FILE) as f:
-        for line in f:
-            [id, name] = line.strip('\n').split('\t')
-            new_paper = Node(Node.PAPER_TYPE, id, name)
-
-            root.add_neighbor(new_paper)
-
-    print "Parsing term file..."
-    with open(DATA_FOLDER + TERM_FILE) as f:
-        for line in f:
-            [id, name] = line.strip('\n').split('\t')
-            new_term = Node(Node.TERM_TYPE, id, name)
-
-            root.add_neighbor(new_term)
-
-    print "Parsing relation file..."
-    with open(DATA_FOLDER + RELATION_FILE) as f, open(DATA_FOLDER + NEW_RELATION_FILE, 'w') as out:
-        for line in f:
-            [node1_id, node2_id, level] = line.strip('\n').split('\t')
-            node1_type = get_node_type(root, node1_id)
-            node2_type = get_node_type(root, node2_id)
-            out.write(node1_id + '\t' + node1_type + '\t' + node2_id + '\t' + node2_type + '\t' + level + '\n')
-
-def get_node_type(root, node_id):
-    ret = None
-
-    if root.get_neighbor(Node.AUTHOR_TYPE, node_id):
-        ret = "author"
-    elif root.get_neighbor(Node.PAPER_TYPE, node_id):
-        ret = "paper"
-    elif root.get_neighbor(Node.CONF_TYPE, node_id):
-        ret = "conf"
-    elif root.get_neighbor(Node.TERM_TYPE, node_id):
-        ret = "term"
-
-    return ret
+    if len(similarity):
+        print "Avg similarity:", np.average(similarity), np.std(similarity)
 
 if __name__ == '__main__':
     main()
