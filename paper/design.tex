@@ -166,16 +166,15 @@ hierarchy tree.
 %\subsubsubsection{OLAP Operations}
 When the user needs to drill-down in our dataset, he needs to specify a category name and a category
 value. The drill-down operation is implemented such that for each node, we check if its category is a member
-of the pair (category name, category value). The running time for drill-down is $O(N)$ where N is the number of
-vertices in the current graph.
+of the pair (category name, category value). Since each vertex in the graph is only being looked at once in this operation, the running time for drill-down is $O(N)$ where N is the number of vertices in the current graph.
 
 \ \\
 
 For the roll-up operation, the user will need to specify similar parameters.
-For this operation, we keep track of all the leaves vertices in the hierarchy trees, as well as the vertices
-that points to them. We add all these vertices together, and append them to the current graph.
-The running time is $O(hN)$ where $h$ is the size of the hierarchy tree.
-
+For this operation, we keep track of all of the nodes that belong to a particular
+category in the hierarchy trees and save them in a hash-table where the key is
+the category name in the hierarchy tree while the value is a set of nodes that
+belong to that category. We add all of these vertices together and then append them to the current graph. Thus, a vertex could appear in the hash-table multiple times depending on how far down from the root is his category. Thus, the running time of the roll-up operation is $O(hN)$, where $h$ is the depth of the hierarchy tree while N is the number of vertices in the current graph.
 
 \subsubsection{User-Specified Constraints}
 \label{sec:user_constraint}
@@ -247,9 +246,9 @@ exist in the path.
 
 Finally, the meta-paths returned by PathSim might be hard to read.
 For example, the meta-path \textit{Article}$ \leadsto $\textit{Person: Coen Brothers}
- $\leadsto$ \textit{Article} $\leadsto$ \textit{Location: France} $\leadsto$ \textit{Article} 
+ $\leadsto$ \textit{Article} $\leadsto$ \textit{Location: France} $\leadsto$ \textit{Article}
 is hard to understand at a glance. However, if the user realizes that this meta-path talks
-about the \textit{Cannes Film Festival} then he can replace that meta-path with this more 
+about the \textit{Cannes Film Festival} then he can replace that meta-path with this more
 meaningful label.
 
 \h allows users to input a meta-path YAML file into the system.
@@ -262,5 +261,5 @@ Cannes Film Festival:
     - location: France
 \end{verbatim}
 
-Would replace any paths within a meta-path of the format \textit{person: Coen Brothers} 
+Would replace any paths within a meta-path of the format \textit{person: Coen Brothers}
 $\leadsto$ * $\leadsto$ \textit{Location: France} with \textit{Cannes Film Festival}.
