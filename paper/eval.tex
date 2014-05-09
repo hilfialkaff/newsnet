@@ -44,10 +44,10 @@ display the comparison.
     \begin{tabular}{| l | l | l |}
         \hline
         Graph & Average (s) & Stddev \\ \hline
-        DBLP Full & 1.02 & 2.70 \\ \hline
-        NYT Full & 12.25 & 10.31 \\ \hline
-        DBLP DB & 0.21 & 0.27 \\ \hline
-        NYT Jordan & 7.34 & 7.35 \\
+        DBLP Full & 5.26 & 0.042 \\ \hline
+        NYT Full & 5.12 & 0.157 \\ \hline
+        DBLP DB & 1.41 & 0.03 \\ \hline
+        NYT Jordan & 1.70 & 0.04 \\
         \hline
     \end{tabular}
 
@@ -56,13 +56,17 @@ display the comparison.
 \end{table}
 
 For the similarity search, we measure the times it takes to
-execute similarity search on 100 pairs of nodes chosen
-randomly from the graph. Table~\ref{tab:similarity-result} shows
+execute similarity search on a pair of nodes with meta-path length of 4. The
+evaluation was repeated 5 times. Table~\ref{tab:similarity-result} shows
 the time taken on 4 graphs. The first two are
 the full DBLP dataset and the full NYTimes dataset while
 the last two are a subgraph of the DBLP dataset whose
 vertices' ''area`` dimension is database and a subgraph of the NYT
 datasets whose vertices' ''country`` dimension is Jordan.
+We can see that although, we increase the graph size considerably with
+NYT Full our runtimes are about the same. We can also see that
+the standard deviation for similarity search is low, hence our results
+should be stable.
 
 \begin{table}
     \centering
@@ -71,7 +75,7 @@ datasets whose vertices' ''country`` dimension is Jordan.
         Graph & Average (s) & Stddev \\ \hline
         DBLP drill down & 0.055 & 0.024 \\ \hline
         DBLP roll up & 0.0058 & 0.00093 \\ \hline
-        NYT drill down & 5.70 & 0.44 \\ \hline
+        NYT drill down & 0.52 & 0.06 \\ \hline
         NYT roll up & 19.22 & 0.91 \\
         \hline
     \end{tabular}
@@ -82,6 +86,12 @@ datasets whose vertices' ''country`` dimension is Jordan.
 \end{table}
 
 For the OLAP operations, we measure the time it takes to
-perform drill-down and roll-up under a random category
-that is present in the dataset. Table~\ref{tab:similarity-result} shows
+perform drill-down and roll-up under specific categories.
+For the DBLP data the drilled-down subgraph is four times smaller
+than the original graph. On the other hand, there was no subgraph in NYT 
+that would allow us to get a network of size four times smaller. So we resorted to 
+a network that was only 10 \% smaller than the original one.
+ Table~\ref{tab:similarity-result} shows
 the time taken for OLAP operations on both the DBLP and NYTimes dataset.
+We can see that the drill-down operations are really performant, however roll-up can
+take a long amount of time when we are dealing with a very large network.

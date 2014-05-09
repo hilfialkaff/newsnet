@@ -34,6 +34,9 @@ objects under a specified context only. Thirdly, the original PathSim framework
 also does not allow user to provide hints in the type of meta-paths that a similarity
 search query should return. For instance, a user might be interested in a similarity
 search between two objects that does not go into a specific node in the graph.
+Finally, the meta-paths returned to the user might be hard to understand. For example,
+writing \textit{co-author} instead of $author \leadsto paper \leadsto author$ is
+a lot more relevant to the user.
 
 In this paper, we propose \h, which is built on top of PathSim, that addresses
 the aforementioned shortcomings of PathSim. We address the first challenge by
@@ -52,7 +55,7 @@ the user specified is violated.
 
 This paper is structured as follows. We begin with the design of our framework
 (Section~\ref{sec:design}) followed by our implementation
-(Section~\ref{sec:impl}). We then show our the performance of our framework
+(Section~\ref{sec:impl}). We then show the performance of our framework
 based on the DBLP and NYTimes dataset (Section~\ref{sec:eval}).
 Finally, we discuss some extensions that could further be made to our framework
 and conclude (Section~\ref{sec:conc}).
