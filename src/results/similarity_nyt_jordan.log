@@ -1,0 +1,35 @@
+2014-05-06 19:16:28,133 Time taken for drill-down: 0.166762
+2014-05-06 19:16:28,730 - Degree of node avg: 6 stddev: 44.219911
+2014-05-06 19:22:29,168 Time taken for drill-down: 0.152855
+2014-05-06 19:22:29,689 - Degree of node avg: 6 stddev: 44.219911
+2014-05-06 19:23:31,788 Time taken for drill-down: 0.151175
+2014-05-06 19:23:32,288 - Degree of node avg: 6 stddev: 44.219911
+2014-05-06 19:25:30,044 Time taken for drill-down: 0.159883
+2014-05-06 19:25:30,518 Time taken for similarity search: 0.393710
+2014-05-06 19:25:30,519 Score: 0.0 
+2014-05-06 19:25:58,234 Time taken for similarity search: 27.714687
+2014-05-06 19:25:58,234 Score: 0.0379746835443 
+2014-05-06 19:26:05,991 Time taken for similarity search: 7.756711
+2014-05-06 19:26:05,991 Score: 0.0 
+2014-05-06 19:26:09,046 Time taken for similarity search: 3.054615
+2014-05-06 19:26:09,046 Score: 0.0 
+2014-05-06 19:26:16,634 Time taken for similarity search: 7.588215
+2014-05-06 19:26:16,635 Score: 0.0 
+2014-05-06 19:26:25,748 Time taken for similarity search: 9.113086
+2014-05-06 19:26:25,748 Score: 0.0 
+2014-05-06 19:26:28,749 Time taken for similarity search: 3.000896
+2014-05-06 19:26:28,749 Score: 0.0 
+2014-05-06 19:26:47,315 Time taken for similarity search: 18.565464
+2014-05-06 19:26:47,315 Score: 0.1 
+2014-05-06 19:26:55,896 Time taken for similarity search: 8.580110
+2014-05-06 19:26:55,896 Score: 0.110429447853 
+2014-05-06 19:27:03,277 Time taken for similarity search: 7.381002
+2014-05-06 19:27:03,277 Score: 0.0 
+2014-05-06 19:27:03,982 Time taken for similarity search: 0.703994
+2014-05-06 19:27:03,982 Score: 0.0 
+2014-05-06 19:27:04,052 Time taken for similarity search: 0.069794
+2014-05-06 19:27:04,052 Score: 0.0 
+2014-05-06 19:27:06,071 Time taken for similarity search: 2.018587
+2014-05-06 19:27:06,071 Score: 0.0 
+2014-05-06 19:27:12,870 Time taken for similarity search: 6.798612
+2014-05-06 19:27:12,870 Score: 0.0357142857143 
